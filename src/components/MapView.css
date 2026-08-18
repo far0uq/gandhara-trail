@@ -1,0 +1,173 @@
+.map-view {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  border: 5px solid #391701;
+  overflow: hidden;
+  /* placeholder background - real map artwork comes later */
+  background: #f4efd9;
+}
+
+.map-header {
+  position: absolute;
+  top: 48px;
+  left: 57px;
+  display: flex;
+  width: 702px;
+  max-width: calc(100% - 114px);
+  align-items: center;
+  gap: 15px;
+}
+
+.map-logo {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+}
+
+.map-title {
+  margin: 0;
+  color: #351300;
+  font-family: "Panchang", var(--heading, serif);
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -1.44px;
+}
+
+.map-legend {
+  position: absolute;
+  left: 30px;
+  bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.route-row {
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  gap: 6px;
+}
+
+.route-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.route-swatch {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid #391701;
+}
+
+.route-label {
+  flex-shrink: 0;
+  color: #391701;
+  font-family: "Poppins", var(--sans, sans-serif);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.6px;
+  white-space: nowrap;
+  transition: transform 0.2s ease;
+}
+
+.route-row:hover .route-label {
+  font-weight: 700;
+  transform: translateX(-6px);
+}
+
+.route-line {
+  width: 100%;
+  height: 0;
+  border-top: 1.5px solid #391701;
+}
+
+.map-cta {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  width: 300px;
+  height: 60px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: none;
+  border-radius: 0 20px 0 0;
+  background: #391701;
+  cursor: pointer;
+  padding: 0;
+}
+
+.map-cta-text {
+  display: inline-flex;
+  white-space: pre;
+  color: #fcfae9;
+  font-family: "Poppins", var(--sans, sans-serif);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.72px;
+}
+
+.map-cta-letter {
+  display: inline-block;
+}
+
+.map-cta-arrow {
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+  transform-origin: 50% 50%;
+}
+
+@media (max-width: 1024px) {
+  .map-header {
+    top: 24px;
+    left: 24px;
+    gap: 10px;
+  }
+
+  .map-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .map-title {
+    font-size: 32px;
+    letter-spacing: -0.96px;
+  }
+
+  .map-legend {
+    left: 24px;
+    bottom: 112px;
+    gap: 10px;
+  }
+
+  .route-row {
+    width: min(380px, calc(100vw - 48px));
+    height: auto;
+  }
+
+  .route-label {
+    font-size: 16px;
+  }
+
+  .map-cta {
+    width: 100%;
+    height: 76px;
+    border-radius: 0;
+  }
+
+  .map-cta-text {
+    font-size: 18px;
+  }
+}
