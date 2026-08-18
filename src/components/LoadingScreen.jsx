@@ -5,8 +5,10 @@ import "./LoadingScreen.css";
 
 function LoadingScreen({ onComplete }) {
   const screenRef = useRef(null);
+  const bgRef = useRef(null);
   const borderRef = useRef(null);
   const titleRef = useRef(null);
+  const logoRef = useRef(null);
 
   useGSAP(
     () => {
@@ -14,6 +16,18 @@ function LoadingScreen({ onComplete }) {
       // line 2's CSS fade-in (transparent -> #fff) completes at 78.034% of
       // its 11.498296s keyframe loop
       const loadDuration = 14 * 0.78034;
+
+      // fade each image in only once it has actually finished loading, so
+      // neither the background nor the logo ever shows a broken/blank flash
+      const fadeInWhenLoaded = (src, target) => {
+        const img = new Image();
+        img.onload = () =>
+          gsap.to(target, { opacity: 1, duration: 0.8, ease: "power2.out" });
+        img.src = src;
+        if (img.complete) img.onload();
+      };
+      fadeInWhenLoaded("/Loading_Screen.jpg", bgRef.current);
+      fadeInWhenLoaded("/gandhara_trail_logo.png", logoRef.current);
 
       const tl = gsap.timeline({
         delay: startDelay,
@@ -51,12 +65,14 @@ function LoadingScreen({ onComplete }) {
 
   return (
     <div className="loading-screen" ref={screenRef}>
+      <div className="loading-bg" ref={bgRef} />
       <svg className="loading-border">
         <rect ref={borderRef} x="0" y="0" width="100%" height="100%" />
       </svg>
       <div className="loading-content">
         <img
           className="loading-logo"
+          ref={logoRef}
           src="/gandhara_trail_logo.png"
           alt="The Gandhara Trail"
         />
