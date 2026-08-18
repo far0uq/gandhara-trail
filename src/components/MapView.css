@@ -4,8 +4,16 @@
   box-sizing: border-box;
   border: 5px solid #391701;
   overflow: hidden;
-  /* placeholder background - real map artwork comes later */
-  background: #f4efd9;
+  background: url("/Map_Background.png") center / cover no-repeat;
+}
+
+.map-view::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/Background_Paths.png") center / cover no-repeat;
+  opacity: 0.15;
+  pointer-events: none;
 }
 
 .map-header {
