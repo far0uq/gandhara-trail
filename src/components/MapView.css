@@ -4,20 +4,41 @@
   box-sizing: border-box;
   border: 5px solid #391701;
   overflow: hidden;
-  background: url("/Map_Background.png") center / cover no-repeat;
+  background: #fdfae0 url("/Map_Background.png") top center / 100% auto
+    no-repeat;
 }
 
-.map-view::before {
-  content: "";
+.map-paths {
   position: absolute;
   inset: 0;
-  background: url("/Background_Paths.png") center / cover no-repeat;
-  opacity: 0.15;
+  z-index: 1;
   pointer-events: none;
+}
+
+.map-path-group {
+  position: absolute;
+  inset: 0;
+}
+
+.map-path-hit {
+  position: absolute;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.map-path {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
 }
 
 .map-header {
   position: absolute;
+  z-index: 2;
   top: 48px;
   left: 57px;
   display: flex;
@@ -46,6 +67,7 @@
 
 .map-legend {
   position: absolute;
+  z-index: 2;
   left: 30px;
   bottom: 100px;
   display: flex;
@@ -58,6 +80,7 @@
   flex-direction: column;
   width: 260px;
   gap: 6px;
+  cursor: pointer;
 }
 
 .route-top {
@@ -86,7 +109,8 @@
   transition: transform 0.2s ease;
 }
 
-.route-row:hover .route-label {
+.route-row:hover .route-label,
+.route-row.is-selected .route-label {
   font-weight: 700;
   transform: translateX(-6px);
 }
@@ -99,6 +123,7 @@
 
 .map-cta {
   position: absolute;
+  z-index: 2;
   left: 0;
   bottom: 0;
   display: flex;
