@@ -12,18 +12,16 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  pointer-events: none;
+}
+
+.map-paths.is-hovering {
+  cursor: pointer;
 }
 
 .map-path-group {
   position: absolute;
   inset: 0;
-}
-
-.map-path-hit {
-  position: absolute;
-  cursor: pointer;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .map-path {
@@ -109,8 +107,7 @@
   transition: transform 0.2s ease;
 }
 
-.route-row:hover .route-label,
-.route-row.is-selected .route-label {
+.route-row:hover .route-label {
   font-weight: 700;
   transform: translateX(-6px);
 }
