@@ -1,0 +1,35 @@
+[
+  {
+    "id": "taxila-museum",
+    "number": 1,
+    "name": "Taxila Museum",
+    "approximateAge": "2700 BCE",
+    "images": ["/sites/taxila-museum.jpg"],
+    "description": [
+      "Taxila Museum is located at Taxila, Punjab Pakistan. The museum is home to a significant and comprehensive collection of Gandharan art dating from 2nd century BC to 7th century AD.",
+      "Most objects in the collection were excavated from the ruins of ancient Taxila."
+    ]
+  },
+  {
+    "id": "dharmarajika",
+    "number": 2,
+    "name": "Dharmarajika Stupa",
+    "approximateAge": "300 BCE",
+    "images": ["/sites/dharmarajika.jpg"],
+    "description": [
+      "The Dharmarajika Stupa is a large Buddhist stupa near Taxila, built to house relics of the Buddha and surrounded by a monastic complex.",
+      "The site was inscribed as part of the Taxila UNESCO World Heritage listing."
+    ]
+  },
+  {
+    "id": "julian",
+    "number": 3,
+    "name": "Julian",
+    "approximateAge": "200 CE",
+    "images": ["/sites/julian.jpg"],
+    "description": [
+      "Julian is a ruined Buddhist monastery set on a hilltop east of Taxila, known for its stupa court and surviving stucco sculpture.",
+      "The remains include monastic cells, an assembly hall and a series of votive stupas."
+    ]
+  }
+]

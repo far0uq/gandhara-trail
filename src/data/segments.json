@@ -1,0 +1,40 @@
+[
+  {
+    "id": "taxila-museum--gor-gatri",
+    "from": { "number": 1, "name": "Taxila Museum" },
+    "to": { "number": 2, "name": "Gor Gatri" },
+    "distance": "15 KM",
+    "distanceVia": "Via Peshawar Ring Rd",
+    "estimatedVia": "via Main Route",
+    "travel": [
+      { "mode": "car", "minutes": 28 },
+      { "mode": "bike", "minutes": 41 },
+      { "mode": "walk", "minutes": 186 }
+    ],
+    "preview": {
+      "color": "#FF7D37",
+      "d": "M44 300C130 300 120 118 290 112C400 108 450 130 578 196",
+      "from": [44, 300],
+      "to": [578, 196]
+    }
+  },
+  {
+    "id": "gor-gatri--jamrud-fort",
+    "from": { "number": 2, "name": "Gor Gatri" },
+    "to": { "number": 3, "name": "Jamrud Fort" },
+    "distance": "23 KM",
+    "distanceVia": "Via Jamrud Rd",
+    "estimatedVia": "via Khyber Pass",
+    "travel": [
+      { "mode": "car", "minutes": 44 },
+      { "mode": "bike", "minutes": 63 },
+      { "mode": "walk", "minutes": 274 }
+    ],
+    "preview": {
+      "color": "#FF3E37",
+      "d": "M52 210C150 120 220 262 330 250C440 238 470 120 574 150",
+      "from": [52, 210],
+      "to": [574, 150]
+    }
+  }
+]

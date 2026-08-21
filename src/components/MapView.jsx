@@ -2,6 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import GandharaLogo from "./GandharaLogo";
+import OverlayPanel from "./OverlayPanel";
+import SiteOverlay from "./SiteOverlay";
+import PathOverlay from "./PathOverlay";
+import useExitTransition from "../hooks/useExitTransition";
+import SITES from "../data/sites.json";
+import SEGMENTS from "../data/segments.json";
 import "./MapView.css";
 
 const ROUTES = [
@@ -300,6 +306,9 @@ const FOCUS_UI_EXIT_MS = 350;
 // must match the .map-paths transform transition in MapView.css
 const ZOOM_MS = 850;
 
+// must match the overlay-slide-out animation in Overlay.css
+const OVERLAY_EXIT_MS = 320;
+
 function MapView() {
   const ctaRef = useRef(null);
   const arrowRef = useRef(null);
@@ -322,6 +331,50 @@ function MapView() {
   // route queued up behind a zoom-out when switching between routes
   const [pendingRoute, setPendingRoute] = useState(null);
   const pendingFocusTimer = useRef(null);
+
+  // { type: "site" | "path", data } - the trigger points on the map don't
+  // exist yet, so for now L and P step through the sample data
+  const [overlay, setOverlay] = useState(null);
+  const [shownOverlay, overlayExiting] = useExitTransition(
+    overlay,
+    OVERLAY_EXIT_MS,
+  );
+  const overlayRef = useRef(null);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const key = e.key.toLowerCase();
+      if (key !== "l" && key !== "p") return;
+
+      const list = key === "l" ? SITES : SEGMENTS;
+      const type = key === "l" ? "site" : "path";
+      setOverlay((current) => {
+        if (current?.type !== type) return { type, data: list[0] };
+        // same key again steps to the next entry, and closes after the last
+        const next = list.findIndex((item) => item.id === current.data.id) + 1;
+        return next < list.length ? { type, data: list[next] } : null;
+      });
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (!overlay) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setOverlay(null);
+    };
+    const onPointerDown = (e) => {
+      if (!overlayRef.current?.contains(e.target)) setOverlay(null);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("mousedown", onPointerDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("mousedown", onPointerDown);
+    };
+  }, [overlay]);
 
   useEffect(
     () => () => {
@@ -595,11 +648,12 @@ function MapView() {
   useEffect(() => {
     if (!focusedRoute && !pendingRoute) return undefined;
     const onKeyDown = (e) => {
-      if (e.key === "Escape") exitFocus();
+      // an open overlay takes Escape first
+      if (e.key === "Escape" && !overlay) exitFocus();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [focusedRoute, pendingRoute]);
+  }, [focusedRoute, pendingRoute, overlay]);
 
   // the zoom is measured in pixels, so it has to be recomputed whenever the
   // frame or the routes' own per-breakpoint offsets change
@@ -780,6 +834,25 @@ function MapView() {
           </div>
 
         </>
+      )}
+
+      {shownOverlay && (
+        <OverlayPanel
+          panelRef={overlayRef}
+          isExiting={overlayExiting}
+          label={
+            shownOverlay.type === "site" ? "Site details" : "Path details"
+          }
+        >
+          {shownOverlay.type === "site" ? (
+            <SiteOverlay site={shownOverlay.data} />
+          ) : (
+            <PathOverlay
+              key={shownOverlay.data.id}
+              segment={shownOverlay.data}
+            />
+          )}
+        </OverlayPanel>
       )}
     </div>
   );
