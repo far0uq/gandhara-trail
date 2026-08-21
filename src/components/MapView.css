@@ -4,6 +4,9 @@
   box-sizing: border-box;
   border: 5px solid #391701;
   overflow: hidden;
+  /* #root still carries text-align: center from the Vite scaffold, which
+     only shows up once a label wraps onto a second line */
+  text-align: left;
   background: #fdfae0 url("/Map_Background.png") top center / 100% auto
     no-repeat;
 }
@@ -12,6 +15,8 @@
   position: absolute;
   inset: 0;
   z-index: 1;
+  transform-origin: 0 0;
+  transition: transform 0.85s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .map-paths.is-hovering {
@@ -22,6 +27,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  transition: opacity 0.5s ease;
 }
 
 .map-path {
@@ -107,9 +113,14 @@
   transition: transform 0.2s ease;
 }
 
-.route-row:hover .route-label {
+.route-row:hover .route-label,
+.route-row.is-focused .route-label {
   font-weight: 700;
   transform: translateX(-6px);
+}
+
+.route-row.is-dimmed {
+  opacity: 0.3;
 }
 
 .route-line {
@@ -157,6 +168,163 @@
   width: 15px;
   height: 15px;
   transform-origin: 50% 50%;
+}
+
+/* ---------- route focus view ---------- */
+
+@keyframes route-focus-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* leaving the route view runs the same motion backwards instead of cutting
+   the panels out */
+@keyframes route-focus-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+.map-view.is-focus-exiting .route-hints,
+.map-view.is-focus-exiting .route-panel {
+  animation: route-focus-out 0.35s ease both;
+}
+
+.route-hints {
+  position: absolute;
+  z-index: 3;
+  top: 46px;
+  right: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  pointer-events: none;
+  animation: route-focus-in 0.45s ease both 0.25s;
+}
+
+.route-hint {
+  color: #391701;
+  font-family: "Poppins", var(--sans, sans-serif);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: -0.45px;
+  white-space: nowrap;
+  opacity: 0.5;
+}
+
+.route-hint-key {
+  font-weight: 600;
+}
+
+.route-panel {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 20px;
+  animation: route-focus-in 0.45s ease both 0.25s;
+}
+
+.route-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: 40px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* off: hollow pill, dark thumb parked left. on: filled pill, cream thumb
+   pushed right, label bolds the same way the legend labels do */
+.route-toggle-track {
+  position: relative;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 64px;
+  height: 26px;
+  border: 2px solid #391701;
+  border-radius: 999px;
+  background: transparent;
+  transition: background 0.22s ease;
+}
+
+.route-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 16px;
+  border-radius: 999px;
+  background: #391701;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease;
+}
+
+.route-toggle.is-on .route-toggle-track {
+  background: #391701;
+}
+
+.route-toggle.is-on .route-toggle-thumb {
+  transform: translateX(28px);
+  background: #fcfae9;
+}
+
+.route-toggle-label {
+  color: #391701;
+  font-family: "Poppins", var(--sans, sans-serif);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.48px;
+  white-space: nowrap;
+}
+
+.route-toggle.is-on .route-toggle-label {
+  font-weight: 700;
+}
+
+.route-sites {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 10px 48px;
+  margin: 0;
+  border-radius: 20px 0 0 0;
+  background: #391701;
+  padding: 28px 44px 30px 40px;
+  list-style: none;
+}
+
+.route-site {
+  display: flex;
+  gap: 8px;
+  color: #fcfae9;
+  font-family: "Poppins", var(--sans, sans-serif);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.48px;
+  white-space: nowrap;
+}
+
+.route-site-num {
+  flex-shrink: 0;
+  opacity: 0.75;
 }
 
 @media (max-width: 1024px) {
@@ -223,6 +391,33 @@
   .map-cta-text {
     font-size: 18px;
   }
+
+  /* the bottom strip is already taken by the pill legend and the CTA, so the
+     focus view drops the legend (you're inside one route anyway) and stacks
+     its own panel above the CTA instead */
+  .map-view.is-route-focused .map-legend {
+    display: none;
+  }
+
+  .route-panel {
+    right: 16px;
+    bottom: 92px;
+    gap: 14px;
+  }
+
+  .route-toggle {
+    margin-right: 4px;
+  }
+
+  .route-sites {
+    gap: 8px 32px;
+    border-radius: 16px;
+    padding: 20px 26px;
+  }
+
+  .route-site {
+    font-size: 14px;
+  }
 }
 
 @media (max-width: 767px) {
@@ -267,5 +462,38 @@
 
   .route-label {
     font-size: 13px;
+  }
+
+  /* no physical keyboard to press [esc] / [X] on */
+  .route-hints {
+    display: none;
+  }
+
+  .route-panel {
+    left: 16px;
+    right: 16px;
+    bottom: 88px;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .route-toggle {
+    align-self: flex-end;
+    margin-right: 2px;
+  }
+
+  .route-toggle-label {
+    font-size: 14px;
+  }
+
+  .route-sites {
+    gap: 6px 18px;
+    padding: 16px 18px;
+  }
+
+  .route-site {
+    font-size: 12px;
+    letter-spacing: -0.36px;
+    white-space: normal;
   }
 }

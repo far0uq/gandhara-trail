@@ -11,6 +11,13 @@ const ROUTES = [
     offset: "translate(18%,15%) scale(0.60)",
     offsetTablet: "translate(12%, 20%) scale(0.70)",
     offsetMobile: "translate(6%, 45%) scale(1)",
+    sites: [
+      "Taxila Museum",
+      "Dharmarajika Stupa & Monastery",
+      "Julian",
+      "Bhamala Stupa",
+      "Gurudwara Sri Panja Sahib",
+    ],
     idle: "/paths/route-01/idle.png",
     hover: "/paths/route-01/hover.webm",
     press: "/paths/route-01/press.webm",
@@ -22,6 +29,14 @@ const ROUTES = [
     offset: "translate(-20%, 0%) scale(0.60)",
     offsetTablet: "translate(-14%, 6%) scale(0.70)",
     offsetMobile: "translate(-8%, 30%) scale(1)",
+    sites: [
+      "Hund Museum",
+      "Aziz Dheri",
+      "Peshawar Museum",
+      "Gor Ghatri, Heritage Trail, Sethi House",
+      "Khyber Pass, Jamrud Fort",
+      "Shapola Stupa",
+    ],
     idle: "/paths/route-02/idle.png",
     hover: "/paths/route-02/hover.webm",
     press: "/paths/route-02/press.webm",
@@ -33,6 +48,15 @@ const ROUTES = [
     offset: "translate(18%, -20%) scale(0.60)",
     offsetTablet: "translate(12%,-13%) scale(0.70)",
     offsetMobile: "translate(6%, 12%) scale(1)",
+    sites: [
+      "Takht-i-Bahi",
+      "Ashoka Rock Edicts",
+      "Jamal Ghari",
+      "Baziri Barikot",
+      "Ghaznavi Mosque",
+      "Saidu Stupa, Swat Museum",
+      "Amluk Dara Stupa Swat",
+    ],
     idle: "/paths/route-03/idle.png",
     hover: "/paths/route-03/hover.webm",
     press: "/paths/route-03/press.webm",
@@ -258,6 +282,24 @@ function routeOffset(route, breakpoint) {
   return route.offset;
 }
 
+// written out rather than "none" so the browser can interpolate the zoom
+// smoothly in both directions
+const IDENTITY_TRANSFORM = "translate(0px, 0px) scale(1)";
+
+// how much of the frame the focus view keeps clear for the header, legend,
+// site list and CTA, as a fraction of the container
+const FOCUS_INSET = {
+  desktop: { x: 0.11, top: 0.19, bottom: 0.28 },
+  tablet: { x: 0.08, top: 0.14, bottom: 0.3 },
+  mobile: { x: 0.05, top: 0.12, bottom: 0.42 },
+};
+
+// must match the route-focus-out animation in MapView.css
+const FOCUS_UI_EXIT_MS = 350;
+
+// must match the .map-paths transform transition in MapView.css
+const ZOOM_MS = 850;
+
 function MapView() {
   const ctaRef = useRef(null);
   const arrowRef = useRef(null);
@@ -266,6 +308,28 @@ function MapView() {
 
   const [activeRoute, setActiveRoute] = useState(null);
   const [pressedRoute, setPressedRoute] = useState(null);
+  const [focusedRoute, setFocusedRoute] = useState(null);
+  const [showDistances, setShowDistances] = useState(false);
+  const [focusTransform, setFocusTransform] = useState(IDENTITY_TRANSFORM);
+  const pathsRef = useRef(null);
+
+  // the focus panels outlive focusedRoute by one animation so they can play
+  // their entrance in reverse on the way out instead of vanishing
+  const [uiRoute, setUiRoute] = useState(null);
+  const [uiExiting, setUiExiting] = useState(false);
+  const uiExitTimer = useRef(null);
+
+  // route queued up behind a zoom-out when switching between routes
+  const [pendingRoute, setPendingRoute] = useState(null);
+  const pendingFocusTimer = useRef(null);
+
+  useEffect(
+    () => () => {
+      if (uiExitTimer.current) clearTimeout(uiExitTimer.current);
+      if (pendingFocusTimer.current) clearTimeout(pendingFocusTimer.current);
+    },
+    [],
+  );
 
   const handleRouteEnter = (label) => setActiveRoute(label);
   const handleRouteLeave = (label) =>
@@ -327,10 +391,29 @@ function MapView() {
         canvas.height = img.naturalHeight;
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0);
+        const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+        // the drawn stroke only occupies part of the frame, so track its
+        // bounds too - that's what the route focus view zooms to
+        let minX = canvas.width;
+        let minY = canvas.height;
+        let maxX = 0;
+        let maxY = 0;
+        for (let y = 0; y < canvas.height; y++) {
+          for (let x = 0; x < canvas.width; x++) {
+            if (data[(y * canvas.width + x) * 4 + 3] <= 10) continue;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+
         alphaMaps.current[route.label] = {
           width: canvas.width,
           height: canvas.height,
-          data: ctx.getImageData(0, 0, canvas.width, canvas.height).data,
+          data,
+          bbox: { minX, minY, maxX, maxY },
         };
       };
     });
@@ -339,39 +422,43 @@ function MapView() {
     };
   }, []);
 
+  const isPointOnRoute = (label, clientX, clientY) => {
+    const img = imgRefs.current[label];
+    const alpha = alphaMaps.current[label];
+    if (!img || !alpha) return false;
+
+    const rect = img.getBoundingClientRect();
+    if (
+      clientX < rect.left ||
+      clientX > rect.right ||
+      clientY < rect.top ||
+      clientY > rect.bottom
+    )
+      return false;
+
+    const u = (clientX - rect.left) / rect.width;
+    const v = (clientY - rect.top) / rect.height;
+    const px = Math.min(
+      alpha.width - 1,
+      Math.max(0, Math.floor(u * alpha.width)),
+    );
+    const py = Math.min(
+      alpha.height - 1,
+      Math.max(0, Math.floor(v * alpha.height)),
+    );
+    return alpha.data[(py * alpha.width + px) * 4 + 3] > 10;
+  };
+
   const hitTestRoute = (clientX, clientY) => {
     for (let i = ROUTES.length - 1; i >= 0; i--) {
-      const route = ROUTES[i];
-      const img = imgRefs.current[route.label];
-      const alpha = alphaMaps.current[route.label];
-      if (!img || !alpha) continue;
-
-      const rect = img.getBoundingClientRect();
-      if (
-        clientX < rect.left ||
-        clientX > rect.right ||
-        clientY < rect.top ||
-        clientY > rect.bottom
-      )
-        continue;
-
-      const u = (clientX - rect.left) / rect.width;
-      const v = (clientY - rect.top) / rect.height;
-      const px = Math.min(
-        alpha.width - 1,
-        Math.max(0, Math.floor(u * alpha.width)),
-      );
-      const py = Math.min(
-        alpha.height - 1,
-        Math.max(0, Math.floor(v * alpha.height)),
-      );
-      const alphaValue = alpha.data[(py * alpha.width + px) * 4 + 3];
-      if (alphaValue > 10) return route.label;
+      if (isPointOnRoute(ROUTES[i].label, clientX, clientY))
+        return ROUTES[i].label;
     }
     return null;
   };
 
   const handleMapMouseMove = (e) => {
+    if (focusedRoute) return;
     const label = hitTestRoute(e.clientX, e.clientY);
     setActiveRoute((current) => (current === label ? current : label));
   };
@@ -379,9 +466,151 @@ function MapView() {
   const handleMapMouseLeave = () => setActiveRoute(null);
 
   const handleMapMouseDown = (e) => {
+    if (focusedRoute) return;
     const label = hitTestRoute(e.clientX, e.clientY);
     if (label) handleRoutePress(label);
   };
+
+  // scales/pans the whole path layer so the clicked route's drawn artwork
+  // fills the clear area of the frame
+  const computeFocusTransform = (label) => {
+    const container = pathsRef.current;
+    const img = imgRefs.current[label];
+    const alpha = alphaMaps.current[label];
+    if (!container || !img || !alpha) return IDENTITY_TRANSFORM;
+
+    // measure against the un-zoomed layout, so the result doesn't compound
+    // with a transform that's already applied
+    const prevTransform = container.style.transform;
+    const prevTransition = container.style.transition;
+    container.style.transition = "none";
+    container.style.transform = IDENTITY_TRANSFORM;
+    const containerRect = container.getBoundingClientRect();
+    const imgRect = img.getBoundingClientRect();
+    container.style.transform = prevTransform;
+    container.style.transition = prevTransition;
+
+    const { bbox, width: aw, height: ah } = alpha;
+    const contentX =
+      imgRect.left + (bbox.minX / aw) * imgRect.width - containerRect.left;
+    const contentY =
+      imgRect.top + (bbox.minY / ah) * imgRect.height - containerRect.top;
+    const contentW = ((bbox.maxX - bbox.minX) / aw) * imgRect.width;
+    const contentH = ((bbox.maxY - bbox.minY) / ah) * imgRect.height;
+    if (!contentW || !contentH) return IDENTITY_TRANSFORM;
+
+    const inset = FOCUS_INSET[breakpoint] ?? FOCUS_INSET.desktop;
+    const { width: W, height: H } = containerRect;
+    const availLeft = W * inset.x;
+    const availTop = H * inset.top;
+    const availW = W - availLeft * 2;
+    const availH = H - availTop - H * inset.bottom;
+
+    const scale = Math.max(
+      1,
+      Math.min(availW / contentW, availH / contentH, 3),
+    );
+    const tx = availLeft + availW / 2 - scale * (contentX + contentW / 2);
+    const ty = availTop + availH / 2 - scale * (contentY + contentH / 2);
+
+    return `translate(${tx}px, ${ty}px) scale(${scale})`;
+  };
+
+  const clearPendingFocus = () => {
+    if (pendingFocusTimer.current) {
+      clearTimeout(pendingFocusTimer.current);
+      pendingFocusTimer.current = null;
+    }
+    setPendingRoute(null);
+  };
+
+  const focusNow = (label) => {
+    if (uiExitTimer.current) {
+      clearTimeout(uiExitTimer.current);
+      uiExitTimer.current = null;
+    }
+    setActiveRoute(null);
+    setPressedRoute(null);
+    setShowDistances(false);
+    setFocusedRoute(label);
+    setUiRoute(label);
+    setUiExiting(false);
+    setFocusTransform(computeFocusTransform(label));
+  };
+
+  const enterFocus = (label) => {
+    // already zoomed into this one - don't replay the zoom
+    if (label === focusedRoute) return;
+    clearPendingFocus();
+
+    // coming straight from another route: unwind to the whole map first, so
+    // the switch reads as zoom out then zoom in rather than one slide across
+    if (focusedRoute) {
+      exitFocus();
+      setPendingRoute(label);
+      pendingFocusTimer.current = setTimeout(() => {
+        pendingFocusTimer.current = null;
+        setPendingRoute(null);
+        focusNow(label);
+      }, ZOOM_MS);
+      return;
+    }
+
+    focusNow(label);
+  };
+
+  const exitFocus = () => {
+    clearPendingFocus();
+    if (!focusedRoute) return;
+    // the zoom starts unwinding straight away, the panels animate out alongside
+    setFocusedRoute(null);
+    setFocusTransform(IDENTITY_TRANSFORM);
+    setUiExiting(true);
+    if (uiExitTimer.current) clearTimeout(uiExitTimer.current);
+    uiExitTimer.current = setTimeout(() => {
+      setUiRoute(null);
+      setUiExiting(false);
+      uiExitTimer.current = null;
+    }, FOCUS_UI_EXIT_MS);
+  };
+
+  const handleMapClick = (e) => {
+    // while zoomed in, only the focused path counts as "on the route" - the
+    // others are still in the DOM but invisible. Clicking off it zooms back out.
+    if (focusedRoute) {
+      if (!isPointOnRoute(focusedRoute, e.clientX, e.clientY)) exitFocus();
+      return;
+    }
+    const label = hitTestRoute(e.clientX, e.clientY);
+    if (label) {
+      enterFocus(label);
+      return;
+    }
+    // clicking away mid-switch cancels the queued route
+    if (pendingRoute) clearPendingFocus();
+  };
+
+  const focusedRouteData = ROUTES.find((r) => r.label === uiRoute);
+
+  useEffect(() => {
+    if (!focusedRoute && !pendingRoute) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") exitFocus();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [focusedRoute, pendingRoute]);
+
+  // the zoom is measured in pixels, so it has to be recomputed whenever the
+  // frame or the routes' own per-breakpoint offsets change
+  useEffect(() => {
+    if (!focusedRoute) return undefined;
+    const onResize = () =>
+      setFocusTransform(computeFocusTransform(focusedRoute));
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [focusedRoute, breakpoint]);
 
   const { contextSafe } = useGSAP({ scope: ctaRef });
 
@@ -421,12 +650,19 @@ function MapView() {
   });
 
   return (
-    <div className="map-view">
+    <div
+      className={`map-view${uiRoute ? " is-route-focused" : ""}${
+        uiExiting ? " is-focus-exiting" : ""
+      }`}
+    >
       <div
+        ref={pathsRef}
         className={`map-paths${activeRoute ? " is-hovering" : ""}`}
+        style={{ transform: focusTransform }}
         onMouseMove={handleMapMouseMove}
         onMouseLeave={handleMapMouseLeave}
         onMouseDown={handleMapMouseDown}
+        onClick={handleMapClick}
       >
         {ROUTES.map((route) => (
           <div
@@ -434,12 +670,14 @@ function MapView() {
             className="map-path-group"
             style={{
               transform: routeOffset(route, breakpoint),
+              opacity:
+                focusedRoute && focusedRoute !== route.label ? 0 : 1,
             }}
           >
             <RoutePath
               route={route}
-              hovered={activeRoute === route.label}
-              pressed={pressedRoute === route.label}
+              hovered={!focusedRoute && activeRoute === route.label}
+              pressed={!focusedRoute && pressedRoute === route.label}
               imgRef={(el) => {
                 imgRefs.current[route.label] = el;
               }}
@@ -461,12 +699,15 @@ function MapView() {
       <div className="map-legend">
         {ROUTES.map((route) => (
           <div
-            className="route-row"
+            className={`route-row${
+              focusedRoute === route.label ? " is-focused" : ""
+            }${focusedRoute && focusedRoute !== route.label ? " is-dimmed" : ""}`}
             key={route.label}
             style={{ borderColor: route.color }}
-            onMouseEnter={() => handleRouteEnter(route.label)}
-            onMouseLeave={() => handleRouteLeave(route.label)}
-            onMouseDown={() => handleRoutePress(route.label)}
+            onMouseEnter={() => !focusedRoute && handleRouteEnter(route.label)}
+            onMouseLeave={() => !focusedRoute && handleRouteLeave(route.label)}
+            onMouseDown={() => !focusedRoute && handleRoutePress(route.label)}
+            onClick={() => enterFocus(route.label)}
           >
             <div className="route-top">
               <span
@@ -496,6 +737,50 @@ function MapView() {
         </span>
         <ArrowIcon ref={arrowRef} />
       </button>
+
+      {focusedRouteData && (
+        <>
+          <div className="route-hints">
+            <span className="route-hint">
+              <span className="route-hint-key">[esc]</span> - Exit Route View
+            </span>
+            <span className="route-hint">
+              <span className="route-hint-key">[X]</span> - Route Cinematic Tour
+            </span>
+          </div>
+
+          <div className="route-panel">
+            <button
+              type="button"
+              className={`route-toggle${showDistances ? " is-on" : ""}`}
+              onClick={() => setShowDistances((v) => !v)}
+              aria-pressed={showDistances}
+            >
+              <span className="route-toggle-track">
+                <span className="route-toggle-thumb" />
+              </span>
+              <span className="route-toggle-label">Toggle Distances</span>
+            </button>
+
+            <ol
+              className="route-sites"
+              style={{
+                gridTemplateRows: `repeat(${Math.ceil(
+                  focusedRouteData.sites.length / 2,
+                )}, auto)`,
+              }}
+            >
+              {focusedRouteData.sites.map((site, i) => (
+                <li className="route-site" key={site}>
+                  <span className="route-site-num">{i + 1}.</span>
+                  <span className="route-site-name">{site}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+        </>
+      )}
     </div>
   );
 }
