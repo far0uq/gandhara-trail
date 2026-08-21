@@ -463,6 +463,7 @@ function MapView() {
           <div
             className="route-row"
             key={route.label}
+            style={{ borderColor: route.color }}
             onMouseEnter={() => handleRouteEnter(route.label)}
             onMouseLeave={() => handleRouteLeave(route.label)}
             onMouseDown={() => handleRoutePress(route.label)}
