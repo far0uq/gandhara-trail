@@ -26,6 +26,7 @@ const ROUTES = [
     ],
     idle: "/paths/route-01/idle.png",
     hover: "/paths/route-01/hover.webm",
+    leave: "/paths/route-01/leave.webm",
     press: "/paths/route-01/press.webm",
     release: "/paths/route-01/release.webm",
   },
@@ -45,6 +46,7 @@ const ROUTES = [
     ],
     idle: "/paths/route-02/idle.png",
     hover: "/paths/route-02/hover.webm",
+    leave: "/paths/route-02/leave.webm",
     press: "/paths/route-02/press.webm",
     release: "/paths/route-02/release.webm",
   },
@@ -65,6 +67,7 @@ const ROUTES = [
     ],
     idle: "/paths/route-03/idle.png",
     hover: "/paths/route-03/hover.webm",
+    leave: "/paths/route-03/leave.webm",
     press: "/paths/route-03/press.webm",
     release: "/paths/route-03/release.webm",
   },
@@ -72,18 +75,14 @@ const ROUTES = [
 
 function RoutePath({ route, hovered, pressed, imgRef, videoSrcs }) {
   const hoverVideoRef = useRef(null);
+  const leaveVideoRef = useRef(null);
   const pressVideoRef = useRef(null);
   const releaseVideoRef = useRef(null);
-  const reverseRaf = useRef(null);
   const wasPressed = useRef(false);
+  // whether the path is currently showing something other than idle, so the
+  // leave clip only runs when there is actually a hover to come out of
+  const isRaised = useRef(false);
   const [visualState, setVisualState] = useState("idle");
-
-  const cancelReverse = () => {
-    if (reverseRaf.current != null) {
-      cancelAnimationFrame(reverseRaf.current);
-      reverseRaf.current = null;
-    }
-  };
 
   // outgoing clips only get hidden via opacity, not stopped - left playing,
   // one can keep advancing in the background and fire a stale "ended" event
@@ -91,42 +90,33 @@ function RoutePath({ route, hovered, pressed, imgRef, videoSrcs }) {
   // shows up as glitching under rapid presses. Pausing whichever clip isn't
   // the active one on every transition keeps only one ever running.
   const pauseExcept = (keepRef) => {
-    [hoverVideoRef, pressVideoRef, releaseVideoRef].forEach((ref) => {
-      if (ref !== keepRef && ref.current && !ref.current.paused) {
-        ref.current.pause();
-      }
-    });
+    [hoverVideoRef, leaveVideoRef, pressVideoRef, releaseVideoRef].forEach(
+      (ref) => {
+        if (ref !== keepRef && ref.current && !ref.current.paused) {
+          ref.current.pause();
+        }
+      },
+    );
   };
 
-  const reverseHoverOut = () => {
-    const video = hoverVideoRef.current;
-    pauseExcept(hoverVideoRef);
-    if (!video || video.currentTime <= 0) {
+  const playLeave = () => {
+    const video = leaveVideoRef.current;
+    if (!isRaised.current || !video) {
+      pauseExcept(null);
+      isRaised.current = false;
       setVisualState("idle");
       return;
     }
-    // hover ended: scrub the same clip backwards to its start instead of
-    // just snapping back to the idle image
-    setVisualState("hover");
-    video.pause();
-    let last = performance.now();
-    const step = (now) => {
-      const dt = (now - last) / 1000;
-      last = now;
-      video.currentTime = Math.max(0, video.currentTime - dt);
-      if (video.currentTime <= 0.001) {
-        reverseRaf.current = null;
-        setVisualState("idle");
-        return;
-      }
-      reverseRaf.current = requestAnimationFrame(step);
-    };
-    reverseRaf.current = requestAnimationFrame(step);
+    isRaised.current = false;
+    pauseExcept(leaveVideoRef);
+    setVisualState("leaving");
+    video.currentTime = 0;
+    video.play().catch(() => {});
   };
 
   useEffect(() => {
     if (pressed) {
-      cancelReverse();
+      isRaised.current = true;
       wasPressed.current = true;
       setVisualState("pressed");
       const video = pressVideoRef.current;
@@ -135,14 +125,13 @@ function RoutePath({ route, hovered, pressed, imgRef, videoSrcs }) {
         video.currentTime = 0;
         video.play().catch(() => {});
       }
-      return cancelReverse;
+      return;
     }
 
     if (wasPressed.current) {
       // mouse was just released: play the release clip once, then settle
-      // into hover/idle once it finishes (handled by the "ended" effect below)
+      // into hover/leave once it finishes (handled by the "ended" effect below)
       wasPressed.current = false;
-      cancelReverse();
       setVisualState("released");
       const video = releaseVideoRef.current;
       if (video) {
@@ -150,30 +139,37 @@ function RoutePath({ route, hovered, pressed, imgRef, videoSrcs }) {
         video.currentTime = 0;
         video.play().catch(() => {});
       }
-      return cancelReverse;
+      return;
     }
 
     if (hovered) {
-      cancelReverse();
+      isRaised.current = true;
       setVisualState("hover");
       const video = hoverVideoRef.current;
       if (video) {
         pauseExcept(hoverVideoRef);
         video.play().catch(() => {});
       }
-      return cancelReverse;
+      return;
     }
 
-    reverseHoverOut();
-    return cancelReverse;
+    playLeave();
   }, [hovered, pressed]);
+
+  // the leave clip runs once and hands back to the idle image
+  useEffect(() => {
+    const video = leaveVideoRef.current;
+    if (!video) return undefined;
+    const onEnded = () => setVisualState("idle");
+    video.addEventListener("ended", onEnded);
+    return () => video.removeEventListener("ended", onEnded);
+  }, [videoSrcs.leave]);
 
   useEffect(() => {
     const video = releaseVideoRef.current;
     if (!video) return undefined;
     const onEnded = () => {
       if (hovered) {
-        cancelReverse();
         setVisualState("hover");
         const hoverVideo = hoverVideoRef.current;
         if (hoverVideo) {
@@ -181,7 +177,7 @@ function RoutePath({ route, hovered, pressed, imgRef, videoSrcs }) {
           hoverVideo.currentTime = hoverVideo.duration || 0;
         }
       } else {
-        reverseHoverOut();
+        playLeave();
       }
     };
     video.addEventListener("ended", onEnded);
@@ -190,13 +186,10 @@ function RoutePath({ route, hovered, pressed, imgRef, videoSrcs }) {
 
   return (
     <>
-      <img
-        ref={imgRef}
-        className="map-path"
-        src={route.idle}
-        alt=""
-        style={{ opacity: visualState === "idle" ? 1 : 0 }}
-      />
+      {/* the idle art stays put underneath and the clips play over it - fading
+          it out in step with them left both layers part-transparent mid-swap,
+          which showed as a flash of the map through the path */}
+      <img ref={imgRef} className="map-path" src={route.idle} alt="" />
       {videoSrcs.hover && (
         <video
           ref={hoverVideoRef}
@@ -206,6 +199,17 @@ function RoutePath({ route, hovered, pressed, imgRef, videoSrcs }) {
           muted
           playsInline
           style={{ opacity: visualState === "hover" ? 1 : 0 }}
+        />
+      )}
+      {videoSrcs.leave && (
+        <video
+          ref={leaveVideoRef}
+          className="map-path"
+          src={videoSrcs.leave}
+          preload="auto"
+          muted
+          playsInline
+          style={{ opacity: visualState === "leaving" ? 1 : 0 }}
         />
       )}
       {videoSrcs.press && (
@@ -408,7 +412,7 @@ function MapView() {
     let cancelled = false;
     const urls = [];
     ROUTES.forEach((route) => {
-      [route.hover, route.press, route.release].forEach((path) => {
+      [route.hover, route.leave, route.press, route.release].forEach((path) => {
         fetch(path)
           .then((res) => res.blob())
           .then((blob) => {
@@ -737,6 +741,7 @@ function MapView() {
               }}
               videoSrcs={{
                 hover: videoBlobUrls[route.hover],
+                leave: videoBlobUrls[route.leave],
                 press: videoBlobUrls[route.press],
                 release: videoBlobUrls[route.release],
               }}
