@@ -59,17 +59,19 @@ function RouteDistances({
   segments,
   legs,
   isExiting,
-  focusItem,
+  focusItems,
+  hoverItem,
   onFocus,
   onSelect,
 }) {
   // a leg's line and its label live in separate groups so the labels can all
   // paint last, which rules out :hover for this
   const dimmed = (index) => {
-    if (!focusItem) return false;
-    // focusing a pin pushes every leg back
-    if (focusItem.type === "site") return true;
-    return focusItem.index !== index;
+    if (!focusItems.length) return false;
+    // a pin in focus covers no leg, so every leg falls back
+    return !focusItems.some(
+      (focus) => focus.type === "segment" && focus.index === index,
+    );
   };
 
   const drawn = [];
@@ -88,7 +90,7 @@ function RouteDistances({
   return (
     <svg
       className={`map-distances${isExiting ? " is-exiting" : ""}${
-        focusItem?.type === "segment" ? " is-raised" : ""
+        hoverItem?.type === "segment" ? " is-raised" : ""
       }`}
       viewBox={`0 0 ${ART_W} ${ART_H}`}
     >

@@ -127,7 +127,7 @@
   top: 6%;
   left: 50%;
   width: min(1320px, 88%);
-  height: 44%;
+  height: 30%;
   transform: translateX(-50%);
   overflow: hidden;
   -webkit-mask-image: linear-gradient(

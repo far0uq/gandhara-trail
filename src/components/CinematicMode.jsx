@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 // the crawl moves at a constant speed, so each beat is on screen for a time
 // proportional to its own length without needing per-beat timings
-const PX_PER_SECOND = 24;
+const PX_PER_SECOND = 15;
 
 // clicks land on the tour rather than the map, so after a few of them the
 // exit hint calls attention to itself

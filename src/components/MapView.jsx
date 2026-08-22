@@ -304,6 +304,7 @@ function ArrowIcon({ ref }) {
 }
 
 const CTA_LABEL = "Book your tickets";
+const CTA_HREF = "https://kparchaeology.gkp.pk/";
 
 // three tiers so each route's map position/scale can be tuned per device
 // class: desktop (default), tablet (768-1024px, matches the app's existing
@@ -371,6 +372,13 @@ const DISTANCE_EXIT_MS = 260;
 // must match the glow / border transitions in Cinematic.css
 const CINEMATIC_EXIT_MS = 1300;
 
+// X stays inert until the chrome has finished getting out of the way, and
+// again until it has finished coming back
+// kept just under the visible transitions, so X is live again as soon as the
+// chrome looks settled rather than a beat later
+const CINEMATIC_ENTER_LOCK_MS = 550;
+const CINEMATIC_EXIT_LOCK_MS = 800;
+
 function MapView() {
   const ctaRef = useRef(null);
   const arrowRef = useRef(null);
@@ -408,6 +416,20 @@ function MapView() {
     CINEMATIC_EXIT_MS,
   );
 
+  // bumped on every start so the tour remounts and replays from the top
+  const [cinematicRun, setCinematicRun] = useState(0);
+  const cinematicLock = useRef(null);
+  const isCinematicLocked = () => cinematicLock.current != null;
+
+  const lockCinematic = (ms) => {
+    clearTimeout(cinematicLock.current);
+    cinematicLock.current = setTimeout(() => {
+      cinematicLock.current = null;
+    }, ms);
+  };
+
+  useEffect(() => () => clearTimeout(cinematicLock.current), []);
+
   const exitCinematic = useCallback(() => {
     setCinematic(null);
     setFocusItem(null);
@@ -422,12 +444,17 @@ function MapView() {
     const onKeyDown = (e) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key.toLowerCase() !== "x") return;
+      if (isCinematicLocked()) return;
+
       if (cinematic) {
         exitCinematic();
+        lockCinematic(CINEMATIC_EXIT_LOCK_MS);
       } else if (focusedRoute && STORIES[focusedRoute]) {
         setShowDistances(false);
         setOverlay(null);
+        setCinematicRun((run) => run + 1);
         setCinematic(focusedRoute);
+        lockCinematic(CINEMATIC_ENTER_LOCK_MS);
       }
     };
     window.addEventListener("keydown", onKeyDown);
@@ -577,6 +604,47 @@ function MapView() {
       urls.forEach((url) => URL.revokeObjectURL(url));
     };
   }, []);
+
+  // Safari decodes VP8/VP9 WebM but ignores its alpha channel, painting every
+  // transparent pixel black. Rather than sniff the browser, draw a frame to a
+  // canvas and look at a corner that is transparent in the source: if it comes
+  // back opaque the clips are unusable and we stay on the idle artwork.
+  const [alphaVideoOk, setAlphaVideoOk] = useState(true);
+
+  useEffect(() => {
+    const url = videoBlobUrls[ROUTES[0].hover];
+    if (!url) return undefined;
+
+    let cancelled = false;
+    const probe = document.createElement("video");
+    probe.muted = true;
+    probe.playsInline = true;
+    probe.preload = "auto";
+
+    const check = () => {
+      if (cancelled) return;
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = 16;
+        canvas.height = 16;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        ctx.clearRect(0, 0, 16, 16);
+        ctx.drawImage(probe, 0, 0, 16, 16);
+        if (ctx.getImageData(1, 1, 1, 1).data[3] > 250) setAlphaVideoOk(false);
+      } catch {
+        // if the frame can't be read, leave the clips enabled
+      }
+      probe.removeAttribute("src");
+    };
+
+    probe.addEventListener("loadeddata", check, { once: true });
+    probe.src = url;
+
+    return () => {
+      cancelled = true;
+      probe.removeAttribute("src");
+    };
+  }, [videoBlobUrls]);
 
   // the routes' bounding boxes now overlap on screen, so hovering/clicking
   // the drawn artwork itself has to hit-test against the actual opaque
@@ -805,6 +873,25 @@ function MapView() {
   const focusedRouteData = ROUTES.find((r) => r.label === uiRoute);
   const cinematicRoute = ROUTES.find((r) => r.label === shownCinematic);
 
+  // an open overlay holds its own marker in focus, so the rest of the route
+  // stays pushed back while you read it. Hovering anything else takes over for
+  // as long as the pointer is there.
+  let restingFocus = null;
+  if (focusedRouteData && shownOverlay?.type === "site") {
+    const index = focusedRouteData.sites.findIndex(
+      (site) => site.id === shownOverlay.data.id,
+    );
+    if (index >= 0) restingFocus = { type: "site", index };
+  } else if (focusedRouteData && shownOverlay?.type === "path") {
+    const [fromId] = shownOverlay.data.id.split("--");
+    const index = focusedRouteData.sites.findIndex(
+      (site) => site.id === fromId,
+    );
+    if (index >= 0) restingFocus = { type: "segment", index };
+  }
+  // both at once: the open overlay's marker and whatever the pointer is on
+  const focusItems = [restingFocus, focusItem].filter(Boolean);
+
   useEffect(() => {
     if (!focusedRoute && !pendingRoute) return undefined;
     const onKeyDown = (e) => {
@@ -911,12 +998,16 @@ function MapView() {
               imgRef={(el) => {
                 imgRefs.current[route.label] = el;
               }}
-              videoSrcs={{
-                hover: videoBlobUrls[route.hover],
-                leave: videoBlobUrls[route.leave],
-                press: videoBlobUrls[route.press],
-                release: videoBlobUrls[route.release],
-              }}
+              videoSrcs={
+                alphaVideoOk
+                  ? {
+                      hover: videoBlobUrls[route.hover],
+                      leave: videoBlobUrls[route.leave],
+                      press: videoBlobUrls[route.press],
+                      release: videoBlobUrls[route.release],
+                    }
+                  : {}
+              }
             />
             {/* covers the dashed centre line while the legs are drawn over
                 it, so the two sets of markings don't fight each other */}
@@ -935,7 +1026,8 @@ function MapView() {
                 segments={SEGMENTS}
                 legs={LEGS}
                 isExiting={distancesExiting || uiExiting}
-                focusItem={focusItem}
+                focusItems={focusItems}
+                hoverItem={focusItem}
                 onFocus={setFocusItem}
                 onSelect={(index) => handleSegmentSelect(route, index)}
               />
@@ -944,7 +1036,7 @@ function MapView() {
               <RoutePins
                 route={route}
                 isExiting={uiExiting}
-                focusItem={focusItem}
+                focusItems={focusItems}
                 onFocus={setFocusItem}
                 onSelect={handlePinSelect}
               />
@@ -983,10 +1075,12 @@ function MapView() {
         ))}
       </div>
 
-      <button
-        type="button"
+      <a
         className="map-cta"
         ref={ctaRef}
+        href={CTA_HREF}
+        target="_blank"
+        rel="noopener noreferrer"
         onMouseEnter={handleEnter}
         onMouseLeave={handleLeave}
       >
@@ -998,7 +1092,7 @@ function MapView() {
           ))}
         </span>
         <ArrowIcon ref={arrowRef} />
-      </button>
+      </a>
 
       {focusedRouteData && (
         <>
@@ -1032,12 +1126,27 @@ function MapView() {
                 )}, auto)`,
               }}
             >
-              {focusedRouteData.sites.map((site, i) => (
-                <li className="route-site" key={site.id}>
-                  <span className="route-site-num">{i + 1}.</span>
-                  <span className="route-site-name">{site.name}</span>
-                </li>
-              ))}
+              {focusedRouteData.sites.map((site, i) => {
+                const focused = focusItems.some((focus) =>
+                  focus.type === "segment"
+                    ? i === focus.index || i === focus.index + 1
+                    : focus.index === i,
+                );
+                return (
+                  <li
+                    className={`route-site${focused ? " is-focused" : ""}`}
+                    key={site.id}
+                    onMouseEnter={() =>
+                      setFocusItem({ type: "site", index: i })
+                    }
+                    onMouseLeave={() => setFocusItem(null)}
+                    onClick={() => handlePinSelect(site, i + 1)}
+                  >
+                    <span className="route-site-num">{i + 1}.</span>
+                    <span className="route-site-name">{site.name}</span>
+                  </li>
+                );
+              })}
             </ol>
           </div>
 
@@ -1046,6 +1155,7 @@ function MapView() {
 
       {cinematicRoute && (
         <CinematicMode
+          key={cinematicRun}
           story={STORIES[shownCinematic]}
           route={cinematicRoute}
           isExiting={cinematicExiting}

@@ -109,3 +109,19 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* the map is a pointer-driven canvas, not a document - stray text selection
+   and image dragging just break the illusion */
+html {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+img,
+svg,
+video {
+  -webkit-user-drag: none;
+  user-select: none;
+}

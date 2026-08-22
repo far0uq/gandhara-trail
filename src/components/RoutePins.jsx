@@ -2,14 +2,17 @@
  * Numbered pins dropped onto a route's location dots. Positions come from each
  * site's `pin` fraction, so the markers stay locked to the artwork at any zoom.
  */
-function RoutePins({ route, isExiting, focusItem, onFocus, onSelect }) {
+function RoutePins({ route, isExiting, focusItems, onFocus, onSelect }) {
+  // focus can come from more than one place at once - an open overlay holds
+  // its marker lit while the pointer lights another - so a pin only dims when
+  // nothing currently in focus covers it
   const dimmed = (index) => {
-    if (!focusItem) return false;
-    // a focused leg keeps its own two endpoints lit alongside it
-    if (focusItem.type === "segment") {
-      return index !== focusItem.index && index !== focusItem.index + 1;
-    }
-    return focusItem.index !== index;
+    if (!focusItems.length) return false;
+    return !focusItems.some((focus) =>
+      focus.type === "segment"
+        ? index === focus.index || index === focus.index + 1
+        : focus.index === index,
+    );
   };
 
   return (
