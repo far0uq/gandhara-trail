@@ -38,6 +38,7 @@ const ROUTES = [
       },
     ],
     idle: "/paths/route-01/idle.png",
+    dashless: "/paths/route-01/dashless.png",
     hover: "/paths/route-01/hover.webm",
     leave: "/paths/route-01/leave.webm",
     press: "/paths/route-01/press.webm",
@@ -66,6 +67,7 @@ const ROUTES = [
       { id: "shapola-stupa", name: "Shapola Stupa", pin: [0.8081, 0.5425] },
     ],
     idle: "/paths/route-02/idle.png",
+    dashless: "/paths/route-02/dashless.png",
     hover: "/paths/route-02/hover.webm",
     leave: "/paths/route-02/leave.webm",
     press: "/paths/route-02/press.webm",
@@ -101,6 +103,7 @@ const ROUTES = [
       },
     ],
     idle: "/paths/route-03/idle.png",
+    dashless: "/paths/route-03/dashless.png",
     hover: "/paths/route-03/hover.webm",
     leave: "/paths/route-03/leave.webm",
     press: "/paths/route-03/press.webm",
@@ -833,6 +836,17 @@ function MapView() {
                 release: videoBlobUrls[route.release],
               }}
             />
+            {/* covers the dashed centre line while the legs are drawn over
+                it, so the two sets of markings don't fight each other */}
+            {shownDistances === route.label && (
+              <img
+                className={`map-path map-path-dashless${
+                  distancesExiting || uiExiting ? " is-exiting" : ""
+                }`}
+                src={route.dashless}
+                alt=""
+              />
+            )}
             {shownDistances === route.label && (
               <RouteDistances
                 route={route}

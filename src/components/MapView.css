@@ -172,6 +172,16 @@
 
 /* ---------- distance legs ---------- */
 
+/* the dash-free artwork sits over the idle image while distances are on, and
+   fades in and out in step with them */
+.map-path-dashless {
+  animation: map-distance-in 0.3s ease 0s 1 normal both;
+}
+
+.map-path-dashless.is-exiting {
+  animation: map-distance-out 0.26s ease 0s 1 normal both;
+}
+
 @keyframes map-distance-in {
   from {
     opacity: 0;
