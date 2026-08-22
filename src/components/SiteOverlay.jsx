@@ -30,9 +30,11 @@ function SiteOverlay({ site }) {
         <span className="site-overlay-number">{site.number}</span>
       </div>
 
-      <p className="site-overlay-age">
-        Approximate Age ~ {site.approximateAge}
-      </p>
+      {site.approximateAge && (
+        <p className="site-overlay-age">
+          Approximate Age ~ {site.approximateAge}
+        </p>
+      )}
 
       <hr className="overlay-rule" />
 

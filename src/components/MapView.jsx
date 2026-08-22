@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import GandharaLogo from "./GandharaLogo";
+import RoutePins from "./RoutePins";
 import OverlayPanel from "./OverlayPanel";
 import SiteOverlay from "./SiteOverlay";
 import PathOverlay from "./PathOverlay";
@@ -17,12 +18,22 @@ const ROUTES = [
     offset: "translate(18%,15%) scale(0.60)",
     offsetTablet: "translate(12%, 20%) scale(0.70)",
     offsetMobile: "translate(6%, 45%) scale(1)",
+    // pin is the site's dot on the idle artwork, as a fraction of its width
+    // and height - detected from the dark markers drawn into the PNG
     sites: [
-      "Taxila Museum",
-      "Dharmarajika Stupa & Monastery",
-      "Julian",
-      "Bhamala Stupa",
-      "Gurudwara Sri Panja Sahib",
+      { id: "taxila-museum", name: "Taxila Museum", pin: [0.1902, 0.4704] },
+      {
+        id: "dharmarajika",
+        name: "Dharmarajika Stupa & Monastery",
+        pin: [0.4831, 0.5381],
+      },
+      { id: "julian", name: "Julian", pin: [0.5387, 0.5534] },
+      { id: "bhamala-stupa", name: "Bhamala Stupa", pin: [0.6759, 0.4652] },
+      {
+        id: "gurudwara-sri-panja-sahib",
+        name: "Gurudwara Sri Panja Sahib",
+        pin: [0.809, 0.4427],
+      },
     ],
     idle: "/paths/route-01/idle.png",
     hover: "/paths/route-01/hover.webm",
@@ -37,12 +48,20 @@ const ROUTES = [
     offsetTablet: "translate(-14%, 6%) scale(0.70)",
     offsetMobile: "translate(-8%, 30%) scale(1)",
     sites: [
-      "Hund Museum",
-      "Aziz Dheri",
-      "Peshawar Museum",
-      "Gor Ghatri, Heritage Trail, Sethi House",
-      "Khyber Pass, Jamrud Fort",
-      "Shapola Stupa",
+      { id: "hund-museum", name: "Hund Museum", pin: [0.1911, 0.4854] },
+      { id: "aziz-dheri", name: "Aziz Dheri", pin: [0.2823, 0.5277] },
+      { id: "peshawar-museum", name: "Peshawar Museum", pin: [0.5242, 0.5534] },
+      {
+        id: "gor-ghatri",
+        name: "Gor Ghatri, Heritage Trail, Sethi House",
+        pin: [0.6016, 0.483],
+      },
+      {
+        id: "khyber-pass",
+        name: "Khyber Pass, Jamrud Fort",
+        pin: [0.6948, 0.4351],
+      },
+      { id: "shapola-stupa", name: "Shapola Stupa", pin: [0.8081, 0.5425] },
     ],
     idle: "/paths/route-02/idle.png",
     hover: "/paths/route-02/hover.webm",
@@ -56,14 +75,28 @@ const ROUTES = [
     offset: "translate(18%, -20%) scale(0.60)",
     offsetTablet: "translate(12%,-13%) scale(0.70)",
     offsetMobile: "translate(6%, 12%) scale(1)",
+    // NOTE: this route branches, so the left-to-right order the dots were
+    // detected in may not match the real visiting order - reorder if needed
     sites: [
-      "Takht-i-Bahi",
-      "Ashoka Rock Edicts",
-      "Jamal Ghari",
-      "Baziri Barikot",
-      "Ghaznavi Mosque",
-      "Saidu Stupa, Swat Museum",
-      "Amluk Dara Stupa Swat",
+      { id: "takht-i-bahi", name: "Takht-i-Bahi", pin: [0.2037, 0.5372] },
+      {
+        id: "ashoka-rock-edicts",
+        name: "Ashoka Rock Edicts",
+        pin: [0.3535, 0.6118],
+      },
+      { id: "jamal-ghari", name: "Jamal Ghari", pin: [0.3977, 0.38] },
+      { id: "baziri-barikot", name: "Baziri Barikot", pin: [0.4221, 0.3086] },
+      { id: "ghaznavi-mosque", name: "Ghaznavi Mosque", pin: [0.5409, 0.6894] },
+      {
+        id: "saidu-stupa",
+        name: "Saidu Stupa, Swat Museum",
+        pin: [0.7014, 0.6698],
+      },
+      {
+        id: "amluk-dara-stupa",
+        name: "Amluk Dara Stupa Swat",
+        pin: [0.7895, 0.4526],
+      },
     ],
     idle: "/paths/route-03/idle.png",
     hover: "/paths/route-03/hover.webm",
@@ -299,10 +332,15 @@ const IDENTITY_TRANSFORM = "translate(0px, 0px) scale(1)";
 // how much of the frame the focus view keeps clear for the header, legend,
 // site list and CTA, as a fraction of the container
 const FOCUS_INSET = {
-  desktop: { x: 0.11, top: 0.19, bottom: 0.28 },
-  tablet: { x: 0.08, top: 0.14, bottom: 0.3 },
-  mobile: { x: 0.05, top: 0.12, bottom: 0.42 },
+  desktop: { x: 0.18, top: 0.2, bottom: 0.3 },
+  tablet: { x: 0.13, top: 0.16, bottom: 0.32 },
+  mobile: { x: 0.08, top: 0.14, bottom: 0.44 },
 };
+
+// keep in step with .map-pin in MapView.css - the zoom has to reserve room
+// above the path for the pins, which stand well clear of the artwork
+const PIN_WIDTH_RATIO = 0.04;
+const PIN_ASPECT = 178 / 80;
 
 // must match the route-focus-out animation in MapView.css
 const FOCUS_UI_EXIT_MS = 350;
@@ -345,19 +383,32 @@ function MapView() {
   );
   const overlayRef = useRef(null);
 
+  // clicking the pin whose overlay is already open closes it again
+  const handlePinSelect = (site, number) => {
+    setOverlay((current) =>
+      current?.type === "site" && current.data.id === site.id
+        ? null
+        : {
+            type: "site",
+            data: { ...SITES[site.id], id: site.id, name: site.name, number },
+          },
+    );
+  };
+
   useEffect(() => {
     const onKeyDown = (e) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const key = e.key.toLowerCase();
-      if (key !== "l" && key !== "p") return;
+      if (key !== "p") return;
 
-      const list = key === "l" ? SITES : SEGMENTS;
-      const type = key === "l" ? "site" : "path";
       setOverlay((current) => {
-        if (current?.type !== type) return { type, data: list[0] };
+        if (current?.type !== "path") return { type: "path", data: SEGMENTS[0] };
         // same key again steps to the next entry, and closes after the last
-        const next = list.findIndex((item) => item.id === current.data.id) + 1;
-        return next < list.length ? { type, data: list[next] } : null;
+        const next =
+          SEGMENTS.findIndex((item) => item.id === current.data.id) + 1;
+        return next < SEGMENTS.length
+          ? { type: "path", data: SEGMENTS[next] }
+          : null;
       });
     };
     window.addEventListener("keydown", onKeyDown);
@@ -369,15 +420,8 @@ function MapView() {
     const onKeyDown = (e) => {
       if (e.key === "Escape") setOverlay(null);
     };
-    const onPointerDown = (e) => {
-      if (!overlayRef.current?.contains(e.target)) setOverlay(null);
-    };
     window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("mousedown", onPointerDown);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("mousedown", onPointerDown);
-    };
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [overlay]);
 
   useEffect(
@@ -556,6 +600,11 @@ function MapView() {
     const contentH = ((bbox.maxY - bbox.minY) / ah) * imgRect.height;
     if (!contentW || !contentH) return IDENTITY_TRANSFORM;
 
+    // the pins rise above the dots, so fit the path plus that headroom
+    const pinHeight = PIN_WIDTH_RATIO * imgRect.width * PIN_ASPECT;
+    const fitY = contentY - pinHeight;
+    const fitH = contentH + pinHeight;
+
     const inset = FOCUS_INSET[breakpoint] ?? FOCUS_INSET.desktop;
     const { width: W, height: H } = containerRect;
     const availLeft = W * inset.x;
@@ -563,12 +612,9 @@ function MapView() {
     const availW = W - availLeft * 2;
     const availH = H - availTop - H * inset.bottom;
 
-    const scale = Math.max(
-      1,
-      Math.min(availW / contentW, availH / contentH, 3),
-    );
+    const scale = Math.max(1, Math.min(availW / contentW, availH / fitH, 3));
     const tx = availLeft + availW / 2 - scale * (contentX + contentW / 2);
-    const ty = availTop + availH / 2 - scale * (contentY + contentH / 2);
+    const ty = availTop + availH / 2 - scale * (fitY + fitH / 2);
 
     return `translate(${tx}px, ${ty}px) scale(${scale})`;
   };
@@ -632,6 +678,11 @@ function MapView() {
   };
 
   const handleMapClick = (e) => {
+    // an open overlay takes the click - dismiss it and stay zoomed in
+    if (overlay) {
+      setOverlay(null);
+      return;
+    }
     // while zoomed in, only the focused path counts as "on the route" - the
     // others are still in the DOM but invisible. Clicking off it zooms back out.
     if (focusedRoute) {
@@ -746,6 +797,13 @@ function MapView() {
                 release: videoBlobUrls[route.release],
               }}
             />
+            {uiRoute === route.label && (
+              <RoutePins
+                route={route}
+                isExiting={uiExiting}
+                onSelect={handlePinSelect}
+              />
+            )}
           </div>
         ))}
       </div>
@@ -830,9 +888,9 @@ function MapView() {
               }}
             >
               {focusedRouteData.sites.map((site, i) => (
-                <li className="route-site" key={site}>
+                <li className="route-site" key={site.id}>
                   <span className="route-site-num">{i + 1}.</span>
-                  <span className="route-site-name">{site}</span>
+                  <span className="route-site-name">{site.name}</span>
                 </li>
               ))}
             </ol>
