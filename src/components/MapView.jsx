@@ -3,12 +3,14 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import GandharaLogo from "./GandharaLogo";
 import RoutePins from "./RoutePins";
+import RouteDistances from "./RouteDistances";
 import OverlayPanel from "./OverlayPanel";
 import SiteOverlay from "./SiteOverlay";
 import PathOverlay from "./PathOverlay";
 import useExitTransition from "../hooks/useExitTransition";
 import SITES from "../data/sites.json";
 import SEGMENTS from "../data/segments.json";
+import LEGS from "../data/legs.json";
 import "./MapView.css";
 
 const ROUTES = [
@@ -351,6 +353,9 @@ const ZOOM_MS = 850;
 // must match the overlay-slide-out animation in Overlay.css
 const OVERLAY_EXIT_MS = 320;
 
+// must match the map-distance-out animation in MapView.css
+const DISTANCE_EXIT_MS = 260;
+
 function MapView() {
   const ctaRef = useRef(null);
   const arrowRef = useRef(null);
@@ -370,6 +375,13 @@ function MapView() {
   const [uiExiting, setUiExiting] = useState(false);
   const uiExitTimer = useRef(null);
 
+  // keeps the distance layer mounted long enough to fade back out when the
+  // toggle is switched off, rather than blinking away
+  const [shownDistances, distancesExiting] = useExitTransition(
+    showDistances ? focusedRoute : null,
+    DISTANCE_EXIT_MS,
+  );
+
   // route queued up behind a zoom-out when switching between routes
   const [pendingRoute, setPendingRoute] = useState(null);
   const pendingFocusTimer = useRef(null);
@@ -383,6 +395,50 @@ function MapView() {
   );
   const overlayRef = useRef(null);
 
+  // the preview shape is derived from where the two pins sit, so each leg's
+  // thumbnail leans the way the real one does
+  const buildSegmentPreview = (from, to, colour) => {
+    const W = 620;
+    const H = 360;
+    const pad = 66;
+    const dx = to.pin[0] - from.pin[0];
+    const dy = to.pin[1] - from.pin[1];
+    const lean = Math.max(-1, Math.min(1, dy / (Math.abs(dx) || 1)));
+    const x1 = pad;
+    const x2 = W - pad;
+    const y1 = H / 2 - lean * 85;
+    const y2 = H / 2 + lean * 85;
+    return {
+      color: colour,
+      d: `M${x1} ${y1}C${x1 + (x2 - x1) * 0.35} ${y1} ${x1 + (x2 - x1) * 0.65} ${y2} ${x2} ${y2}`,
+      from: [x1, y1],
+      to: [x2, y2],
+    };
+  };
+
+  const handleSegmentSelect = (route, index) => {
+    const from = route.sites[index];
+    const to = route.sites[index + 1];
+    const id = `${from.id}--${to.id}`;
+    const record = SEGMENTS[id];
+    if (!record) return;
+
+    setOverlay((current) =>
+      current?.type === "path" && current.data.id === id
+        ? null
+        : {
+            type: "path",
+            data: {
+              ...record,
+              id,
+              from: { number: index + 1, name: from.name },
+              to: { number: index + 2, name: to.name },
+              preview: buildSegmentPreview(from, to, route.color),
+            },
+          },
+    );
+  };
+
   // clicking the pin whose overlay is already open closes it again
   const handlePinSelect = (site, number) => {
     setOverlay((current) =>
@@ -394,26 +450,6 @@ function MapView() {
           },
     );
   };
-
-  useEffect(() => {
-    const onKeyDown = (e) => {
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const key = e.key.toLowerCase();
-      if (key !== "p") return;
-
-      setOverlay((current) => {
-        if (current?.type !== "path") return { type: "path", data: SEGMENTS[0] };
-        // same key again steps to the next entry, and closes after the last
-        const next =
-          SEGMENTS.findIndex((item) => item.id === current.data.id) + 1;
-        return next < SEGMENTS.length
-          ? { type: "path", data: SEGMENTS[next] }
-          : null;
-      });
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
 
   useEffect(() => {
     if (!overlay) return undefined;
@@ -797,6 +833,15 @@ function MapView() {
                 release: videoBlobUrls[route.release],
               }}
             />
+            {shownDistances === route.label && (
+              <RouteDistances
+                route={route}
+                segments={SEGMENTS}
+                legs={LEGS}
+                isExiting={distancesExiting || uiExiting}
+                onSelect={(index) => handleSegmentSelect(route, index)}
+              />
+            )}
             {uiRoute === route.label && (
               <RoutePins
                 route={route}

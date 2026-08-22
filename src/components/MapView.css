@@ -170,6 +170,59 @@
   transform-origin: 50% 50%;
 }
 
+/* ---------- distance legs ---------- */
+
+@keyframes map-distance-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes map-distance-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.map-distances {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  aspect-ratio: 977 / 648;
+  overflow: visible;
+  pointer-events: none;
+  animation: map-distance-in 0.3s ease 0s 1 normal both;
+}
+
+/* pins normally sit over the distance pills; hovering a leg lifts it clear so
+   whichever of the two you point at is the one you can read */
+.map-distances.is-raised {
+  z-index: 3;
+}
+
+.map-distances.is-exiting {
+  animation: map-distance-out 0.26s ease 0s 1 normal both;
+}
+
+.map-distance {
+  cursor: pointer;
+  pointer-events: auto;
+  transition: opacity 0.18s ease;
+}
+
+/* hovering one leg pushes the rest back so it reads on its own */
+.map-distance.is-dimmed {
+  opacity: 0.22;
+}
+
 /* ---------- location pins ---------- */
 
 @keyframes map-pin-drop {
@@ -202,6 +255,7 @@
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 2;
   width: 100%;
   aspect-ratio: 977 / 648;
   pointer-events: none;
@@ -233,6 +287,11 @@
   width: 100%;
   height: auto;
   overflow: visible;
+}
+
+/* and a hovered pin lifts over its neighbouring pins too */
+.map-pin:hover {
+  z-index: 1;
 }
 
 .map-pin:hover svg {

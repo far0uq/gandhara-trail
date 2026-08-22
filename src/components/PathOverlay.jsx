@@ -91,7 +91,7 @@ function PathOverlay({ segment }) {
         <div className="path-overlay-distance">
           <span className="path-overlay-label">TOTAL DISTANCE:</span>
           <span className="path-overlay-distance-value">
-            {segment.distance}
+            {segment.distanceKm} KM
           </span>
           <span className="path-overlay-via">{segment.distanceVia}</span>
         </div>
