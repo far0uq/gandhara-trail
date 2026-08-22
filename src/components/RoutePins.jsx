@@ -2,7 +2,16 @@
  * Numbered pins dropped onto a route's location dots. Positions come from each
  * site's `pin` fraction, so the markers stay locked to the artwork at any zoom.
  */
-function RoutePins({ route, isExiting, onSelect }) {
+function RoutePins({ route, isExiting, focusItem, onFocus, onSelect }) {
+  const dimmed = (index) => {
+    if (!focusItem) return false;
+    // a focused leg keeps its own two endpoints lit alongside it
+    if (focusItem.type === "segment") {
+      return index !== focusItem.index && index !== focusItem.index + 1;
+    }
+    return focusItem.index !== index;
+  };
+
   return (
     <div className={`map-pins${isExiting ? " is-exiting" : ""}`}>
       {route.sites.map((site, i) =>
@@ -10,22 +19,31 @@ function RoutePins({ route, isExiting, onSelect }) {
           <button
             type="button"
             key={site.id}
-            className="map-pin"
+            className={`map-pin${dimmed(i) ? " is-dimmed" : ""}`}
             style={{
               left: `${site.pin[0] * 100}%`,
               top: `${site.pin[1] * 100}%`,
-              // a custom property rather than animation-delay, so the exit
-              // rule's shorthand can reset the stagger back to zero
-              "--pin-delay": `${0.05 * i}s`,
             }}
             aria-label={site.name}
+            onMouseEnter={() => onFocus({ type: "site", index: i })}
+            onMouseLeave={() => onFocus(null)}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation();
               onSelect(site, i + 1);
             }}
           >
-            <svg viewBox="0 0 80 178" aria-hidden="true">
+            {/* the drop animation lives in here so the button is free to fade
+                on its own when another pin is focused */}
+            <span
+              className="map-pin-drop"
+              style={{
+                // a custom property rather than animation-delay, so the exit
+                // rule's shorthand can reset the stagger back to zero
+                "--pin-delay": `${0.05 * i}s`,
+              }}
+            >
+              <svg viewBox="0 0 80 178" aria-hidden="true">
               <rect x="38.6" y="96" width="2.8" height="82" fill="#350C00" />
               <path
                 d="M40 0C17.9 0 0 17.9 0 40c0 24.1 27.1 51.8 36.4 60.5a5.3 5.3 0 0 0 7.2 0C52.9 91.8 80 64.1 80 40 80 17.9 62.1 0 40 0z"
@@ -44,7 +62,8 @@ function RoutePins({ route, isExiting, onSelect }) {
               >
                 {i + 1}
               </text>
-            </svg>
+              </svg>
+            </span>
           </button>
         ) : null,
       )}

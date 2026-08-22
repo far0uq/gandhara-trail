@@ -238,11 +238,11 @@
 @keyframes map-pin-drop {
   from {
     opacity: 0;
-    transform: translate(-50%, -128%);
+    transform: translateY(-28%);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, -100%);
+    transform: translateY(0);
   }
 }
 
@@ -252,11 +252,11 @@
 @keyframes map-pin-lift {
   from {
     opacity: 1;
-    transform: translate(-50%, -100%);
+    transform: translateY(0);
   }
   to {
     opacity: 0;
-    transform: translate(-50%, -128%);
+    transform: translateY(-28%);
   }
 }
 
@@ -284,11 +284,21 @@
   transform: translate(-50%, -100%);
   transform-origin: 50% 100%;
   pointer-events: auto;
+  transition: opacity 0.18s ease;
+}
+
+/* focusing one pin pushes the rest back, matching the distance legs */
+.map-pin.is-dimmed {
+  opacity: 0.22;
+}
+
+.map-pin-drop {
+  display: block;
   animation: map-pin-drop 0.4s cubic-bezier(0.22, 1.2, 0.36, 1)
     var(--pin-delay, 0s) 1 normal both;
 }
 
-.map-pins.is-exiting .map-pin {
+.map-pins.is-exiting .map-pin-drop {
   animation: map-pin-lift 0.25s ease 0s 1 normal both;
 }
 

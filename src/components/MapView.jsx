@@ -378,6 +378,14 @@ function MapView() {
   const [uiExiting, setUiExiting] = useState(false);
   const uiExitTimer = useRef(null);
 
+  // which marker is being pointed at, shared by the pin and distance layers
+  // so focusing a leg can keep its two endpoint pins lit and vice versa
+  const [focusItem, setFocusItem] = useState(null);
+
+  // mouseleave never fires if the layer is torn out from under the cursor, so
+  // drop the focus whenever the route or the toggle changes
+  useEffect(() => setFocusItem(null), [uiRoute, showDistances]);
+
   // keeps the distance layer mounted long enough to fade back out when the
   // toggle is switched off, rather than blinking away
   const [shownDistances, distancesExiting] = useExitTransition(
@@ -853,6 +861,8 @@ function MapView() {
                 segments={SEGMENTS}
                 legs={LEGS}
                 isExiting={distancesExiting || uiExiting}
+                focusItem={focusItem}
+                onFocus={setFocusItem}
                 onSelect={(index) => handleSegmentSelect(route, index)}
               />
             )}
@@ -860,6 +870,8 @@ function MapView() {
               <RoutePins
                 route={route}
                 isExiting={uiExiting}
+                focusItem={focusItem}
+                onFocus={setFocusItem}
                 onSelect={handlePinSelect}
               />
             )}

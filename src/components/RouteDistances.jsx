@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 // the artwork's own pixel size - pin fractions map straight onto it
 const ART_W = 977;
 const ART_H = 648;
@@ -56,12 +54,23 @@ function midpointOf(points) {
  * between neighbouring pins, labelled with the distance and clickable to open
  * that segment's details.
  */
-function RouteDistances({ route, segments, legs, isExiting, onSelect }) {
+function RouteDistances({
+  route,
+  segments,
+  legs,
+  isExiting,
+  focusItem,
+  onFocus,
+  onSelect,
+}) {
   // a leg's line and its label live in separate groups so the labels can all
-  // paint last, so which one is hovered has to be tracked here rather than
-  // left to :hover
-  const [hovered, setHovered] = useState(null);
-  const dimmed = (index) => hovered !== null && hovered !== index;
+  // paint last, which rules out :hover for this
+  const dimmed = (index) => {
+    if (!focusItem) return false;
+    // focusing a pin pushes every leg back
+    if (focusItem.type === "site") return true;
+    return focusItem.index !== index;
+  };
 
   const drawn = [];
   for (let i = 0; i < route.sites.length - 1; i++) {
@@ -79,7 +88,7 @@ function RouteDistances({ route, segments, legs, isExiting, onSelect }) {
   return (
     <svg
       className={`map-distances${isExiting ? " is-exiting" : ""}${
-        hovered !== null ? " is-raised" : ""
+        focusItem?.type === "segment" ? " is-raised" : ""
       }`}
       viewBox={`0 0 ${ART_W} ${ART_H}`}
     >
@@ -91,8 +100,8 @@ function RouteDistances({ route, segments, legs, isExiting, onSelect }) {
           <g
             key={key}
             className={`map-distance${dimmed(index) ? " is-dimmed" : ""}`}
-            onMouseEnter={() => setHovered(index)}
-            onMouseLeave={() => setHovered(null)}
+            onMouseEnter={() => onFocus({ type: "segment", index })}
+            onMouseLeave={() => onFocus(null)}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation();
@@ -132,8 +141,8 @@ function RouteDistances({ route, segments, legs, isExiting, onSelect }) {
           <g
             key={key}
             className={`map-distance${dimmed(index) ? " is-dimmed" : ""}`}
-            onMouseEnter={() => setHovered(index)}
-            onMouseLeave={() => setHovered(null)}
+            onMouseEnter={() => onFocus({ type: "segment", index })}
+            onMouseLeave={() => onFocus(null)}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation();
