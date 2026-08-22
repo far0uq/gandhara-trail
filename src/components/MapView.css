@@ -40,6 +40,16 @@
   transition: opacity 0.15s ease;
 }
 
+/* all chrome shares one fade so the two sides of the screen stay in step;
+   the duration is a variable so leaving the tour can take it slower */
+.map-header,
+.map-legend,
+.map-cta,
+.route-hints,
+.route-panel {
+  transition: opacity var(--chrome-fade, 0.45s) var(--chrome-ease, ease);
+}
+
 .map-header {
   position: absolute;
   z-index: 2;
@@ -359,7 +369,7 @@
   align-items: flex-end;
   gap: 6px;
   pointer-events: none;
-  animation: route-focus-in 0.45s ease both 0.25s;
+  animation: route-focus-in 0.45s ease backwards 0.25s;
 }
 
 .route-hint {
@@ -385,7 +395,7 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 20px;
-  animation: route-focus-in 0.45s ease both 0.25s;
+  animation: route-focus-in 0.45s ease backwards 0.25s;
 }
 
 .route-toggle {

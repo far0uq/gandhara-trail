@@ -1,0 +1,224 @@
+/* ---------- cinematic mode ---------- */
+
+/* the glow sits over the map but under the narration. Route 2 uses the tone
+   from the design; 1 and 3 are tinted toward their own path colours.
+   It is always mounted and simply fades, so leaving the tour eases out
+   instead of snapping. */
+.map-view::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  background: var(--cinematic-glow, transparent);
+  opacity: 0;
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.map-view.is-cinematic::after {
+  opacity: 1;
+}
+
+/* border-width animates, so the frame thickens and thins with the glow */
+.map-view {
+  transition: border-width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* coming out of the tour is deliberately slower than going in, so the map and
+   its chrome ease back rather than snapping on */
+.map-view.is-cinematic-exiting {
+  --chrome-fade: 1.15s;
+  --chrome-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  transition: border-width 1.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.map-view.is-cinematic-exiting::after {
+  transition: opacity 1.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.map-view.is-cinematic {
+  border-width: 10px;
+}
+
+/* everything that isn't the route itself steps aside, both sides together.
+   The shared transition lives on the elements themselves (MapView.css) so it
+   applies in both directions. */
+.map-view.is-cinematic .map-header,
+.map-view.is-cinematic .map-legend,
+.map-view.is-cinematic .map-cta,
+.map-view.is-cinematic .route-hints,
+.map-view.is-cinematic .route-panel {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* deliberately takes pointer events: while the tour runs, clicking the map
+   should do nothing at all */
+.cinematic {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  animation: cinematic-in 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.cinematic.is-exiting {
+  animation: cinematic-out 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes cinematic-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* its own name rather than reversing the entrance, or the finished animation
+   would just be retimed and land straight on its end state */
+@keyframes cinematic-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.cinematic-hint {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  border: 2px dashed transparent;
+  /* same corner as the top-right of the Book your tickets button */
+  border-radius: 20px;
+  padding: 7px 16px;
+}
+
+.cinematic-hint.is-nudged {
+  animation: cinematic-nudge 2s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+
+@keyframes cinematic-nudge {
+  0% {
+    border-color: transparent;
+    transform: scale(1);
+  }
+  14% {
+    border-color: rgba(57, 23, 1, 0.7);
+    transform: scale(1.07);
+  }
+  26% {
+    transform: scale(1);
+  }
+  72% {
+    border-color: rgba(57, 23, 1, 0.7);
+  }
+  100% {
+    border-color: transparent;
+    transform: scale(1);
+  }
+}
+
+/* only a narrow band is ever fully legible - text rises into it from below and
+   dissolves out of the top, with the next passage already on its way in */
+.cinematic-stage {
+  position: absolute;
+  top: 6%;
+  left: 50%;
+  width: min(1320px, 88%);
+  height: 44%;
+  transform: translateX(-50%);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.35) 20%,
+    #000 40%,
+    #000 60%,
+    rgba(0, 0, 0, 0.35) 80%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.35) 20%,
+    #000 40%,
+    #000 60%,
+    rgba(0, 0, 0, 0.35) 80%,
+    transparent 100%
+  );
+}
+
+/* one continuous column, scrolled as a whole, so passages overlap rather than
+   swapping in and out */
+.cinematic-column {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  will-change: transform;
+}
+
+.cinematic-text {
+  margin: 0 0 2.6em;
+  color: #391701;
+  font-family: "Poppins", var(--sans, sans-serif);
+  font-size: clamp(15px, 1.45vw, 23px);
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: -0.3px;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.cinematic-text:last-child {
+  margin-bottom: 0;
+}
+
+.cinematic-progress {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 5px;
+  background: rgba(57, 23, 1, 0.12);
+}
+
+.cinematic-progress-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  /* each route fills its bar in its own colour */
+  background: var(--route-accent, #391701);
+}
+
+@media (max-width: 1024px) {
+  .cinematic-hint {
+    top: 24px;
+    right: 24px;
+  }
+
+  .cinematic-stage {
+    width: 90%;
+    height: 42%;
+  }
+}
+
+@media (max-width: 767px) {
+  .cinematic-hint {
+    display: none;
+  }
+
+  .cinematic-stage {
+    width: 90%;
+    height: 40%;
+  }
+
+  .cinematic-text {
+    font-size: clamp(13px, 3.6vw, 17px);
+    margin-bottom: 2.2em;
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "Route#01": {
+    "title": "Taxila",
+    "subtitle": "Five stops through the heart of ancient Gandhara",
+    "beats": [
+      {
+        "siteId": null,
+        "text": "For a thousand years the valley of Taxila stood at the crossing of the roads out of Persia, the steppe and the Gangetic plain. Armies passed through it. So did merchants, and with them, ideas. What they left behind is still in the ground."
+      },
+      {
+        "siteId": "taxila-museum",
+        "text": "Begin where the fragments were gathered. The Taxila Museum holds what the excavators lifted from the ruins scattered across this valley — Gandharan sculpture spanning the 2nd century BC to the 7th century AD, carved by hands that had learned from Greece and turned that learning toward the Buddha."
+      },
+      {
+        "siteId": "dharmarajika",
+        "text": "A few kilometres on, the ground itself opens up. The Dharmarajika Stupa was raised over bone relics of the Buddha, and the monastery grew around it until it became one of the largest in Gandhara. Tradition puts its first stones in the hands of the emperor Ashoka, in the 3rd century BCE."
+      },
+      {
+        "siteId": "julian",
+        "text": "Climb east, and the valley falls away below. Jaulian was built on its hilltop in the 2nd century CE — a stupa court ringed by smaller offerings, an assembly hall, and cell after cell where monks slept. Much of its stucco is still on the walls, which is rare."
+      },
+      {
+        "siteId": "bhamala-stupa",
+        "text": "North, on the bank of the Haro River, Bhamala breaks the pattern. Its stupa is cruciform, stairs climbing all four sides — a shape found almost nowhere else here. In its ground the excavators found a Buddha lying in death, seventeen centuries old, among the oldest such figures known anywhere."
+      },
+      {
+        "siteId": "gurudwara-sri-panja-sahib",
+        "text": "The trail ends where a different faith took root. At Hasan Abdal, Guru Nanak stopped in 1521, and the rock said to hold the print of his hand still draws pilgrims. Buddhist, then Sikh — the same valley, one belief settling over another."
+      }
+    ]
+  },
+
+  "Route#02": {
+    "title": "The Road West",
+    "subtitle": "From the Indus crossing to the Khyber Pass",
+    "beats": [
+      {
+        "siteId": null,
+        "text": "Everything that entered or left Gandhara travelled this line. It runs from the ford on the Indus, west across the plain, and up into the mountains — the road to Kabul, to Persia, to everywhere beyond."
+      },
+      {
+        "siteId": "hund-museum",
+        "text": "It starts at the water. Hund is the old crossing on the Indus, once Udabhandapura, where the river could be forded and so where the road had to go. The museum beside it holds what the town left behind, from the late Kushan period down to the Mughals."
+      },
+      {
+        "siteId": "aziz-dheri",
+        "text": "Inland, in Swabi district, a mound covers an entire settlement — stupas, a monastery, the houses of the people who served them. Digging in 2013 uncovered four stupas here, one of them reported the largest recorded anywhere on the subcontinent."
+      },
+      {
+        "siteId": "peshawar-museum",
+        "text": "Then the city. Peshawar has stood at the mouth of the pass for as long as the pass has mattered. Its museum opened in 1907 as Victoria Hall and now holds one of the greatest collections of Gandharan sculpture in the world, carried in from Sahri Bahlol, Takht-i-Bahi, Jamal Garhi and a dozen sites besides."
+      },
+      {
+        "siteId": "gor-ghatri",
+        "text": "At the city's highest point, archaeologists cut down through twenty-seven layers of occupation and reached the 2nd century BCE without hitting the bottom. Peshawar has simply never stopped being lived in. The caravanserai standing over that trench was built in 1640 for a daughter of Shah Jahan."
+      },
+      {
+        "siteId": "khyber-pass",
+        "text": "West of the city the plain runs out. Jamrud Fort was thrown up by the Sikhs in 1836 to hold the mouth of the Khyber, the last flat ground before the road turns to climb. Every army that ever wanted this country came through the gap ahead."
+      },
+      {
+        "siteId": "shapola-stupa",
+        "text": "And inside the pass itself, in a ravine between Ali Masjid and Landi Kotal, a dome still sits on its three stone tiers. Sphola is the most complete Buddhist monument left in the Khyber — a reminder that before the armies, this was a pilgrims' road."
+      }
+    ]
+  },
+
+  "Route#03": {
+    "title": "Mardan to Swat",
+    "subtitle": "Monasteries, edicts, and the valley Alexander besieged",
+    "beats": [
+      {
+        "siteId": null,
+        "text": "This is the long climb north — out of the Mardan plain, up the Malakand, and into Swat, where the mountains close in and the Buddhist heart of Gandhara lies scattered along the river."
+      },
+      {
+        "siteId": "takht-i-bahi",
+        "text": "It begins on a ridge above the plain. Takht-i-Bahi was founded in the 1st century CE and lived on until the 7th. Because it was built high, the floods and the salvagers never reached it, and it survives more completely than almost anything else of its kind. UNESCO listed it in 1980."
+      },
+      {
+        "siteId": "ashoka-rock-edicts",
+        "text": "East of Mardan, on two plain boulders at Shahbaz Garhi, an emperor spoke directly. Ashoka had his fourteen Major Rock Edicts cut here in the 3rd century BCE, in the local Kharoshthi script — one of only two nearly complete sets of his words left standing anywhere."
+      },
+      {
+        "siteId": "jamal-ghari",
+        "text": "On another hilltop nearby, Jamal Garhi held its monastery from roughly the 2nd century to the 5th. Nineteenth-century excavators carried away a great mass of relief carving from it — much of what you saw in the Peshawar Museum began here."
+      },
+      {
+        "siteId": "baziri-barikot",
+        "text": "Then the road climbs into Swat, and history gets older still. Barikot is ancient Bazira, the fortified town Alexander besieged on his way through. Italian archaeologists have been opening it since 1984 — walls, houses, sanctuaries, one town rebuilt on another."
+      },
+      {
+        "siteId": "ghaznavi-mosque",
+        "text": "On the hill at Udegram, a mosque sits above a Buddhist sanctuary and a graveyard. Its foundation stone records the year 1048 and the general who ordered it, serving Mahmud of Ghazni. It is among the oldest mosques in northern Pakistan, built as the older faith was going quiet."
+      },
+      {
+        "siteId": "saidu-stupa",
+        "text": "Downstream at Saidu Sharif, the Great Stupa went up in the 1st century CE and was rebuilt again and again for four hundred years. Its terraces still step upward past the smaller monuments and the lion-topped columns that once framed it."
+      },
+      {
+        "siteId": "amluk-dara-stupa",
+        "text": "And beneath Mount Ilam, the trail ends at Amluk Dara — the best-preserved of the valley's great stupas, raised in the 3rd century and reworked for five hundred years after. Aurel Stein wrote it down in 1926. It had been standing, quietly, the whole time."
+      }
+    ]
+  }
+}

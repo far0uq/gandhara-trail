@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import GandharaLogo from "./GandharaLogo";
 import RoutePins from "./RoutePins";
 import RouteDistances from "./RouteDistances";
+import CinematicMode from "./CinematicMode";
 import OverlayPanel from "./OverlayPanel";
 import SiteOverlay from "./SiteOverlay";
 import PathOverlay from "./PathOverlay";
@@ -11,7 +12,9 @@ import useExitTransition from "../hooks/useExitTransition";
 import SITES from "../data/sites.json";
 import SEGMENTS from "../data/segments.json";
 import LEGS from "../data/legs.json";
+import STORIES from "../data/cinematic.json";
 import "./MapView.css";
+import "./Cinematic.css";
 
 const ROUTES = [
   {
@@ -37,6 +40,8 @@ const ROUTES = [
         pin: [0.809, 0.4427],
       },
     ],
+    glow:
+      "radial-gradient(50% 50% at 50% 50%, rgba(57, 23, 1, 0.00) 0%, rgba(255, 236, 181, 0.10) 76.44%, rgba(255, 236, 181, 0.20) 87.02%, rgba(255, 214, 115, 0.30) 100%)",
     idle: "/paths/route-01/idle.png",
     dashless: "/paths/route-01/dashless.png",
     hover: "/paths/route-01/hover.webm",
@@ -66,6 +71,8 @@ const ROUTES = [
       },
       { id: "shapola-stupa", name: "Shapola Stupa", pin: [0.8081, 0.5425] },
     ],
+    glow:
+      "radial-gradient(50% 50% at 50% 50%, rgba(57, 23, 1, 0.00) 0%, rgba(255, 210, 181, 0.10) 76.44%, rgba(255, 210, 181, 0.20) 87.02%, rgba(255, 170, 115, 0.30) 100%)",
     idle: "/paths/route-02/idle.png",
     dashless: "/paths/route-02/dashless.png",
     hover: "/paths/route-02/hover.webm",
@@ -102,6 +109,8 @@ const ROUTES = [
         pin: [0.7895, 0.4526],
       },
     ],
+    glow:
+      "radial-gradient(50% 50% at 50% 50%, rgba(57, 23, 1, 0.00) 0%, rgba(255, 190, 181, 0.10) 76.44%, rgba(255, 190, 181, 0.20) 87.02%, rgba(255, 128, 115, 0.30) 100%)",
     idle: "/paths/route-03/idle.png",
     dashless: "/paths/route-03/dashless.png",
     hover: "/paths/route-03/hover.webm",
@@ -359,6 +368,9 @@ const OVERLAY_EXIT_MS = 320;
 // must match the map-distance-out animation in MapView.css
 const DISTANCE_EXIT_MS = 260;
 
+// must match the glow / border transitions in Cinematic.css
+const CINEMATIC_EXIT_MS = 1300;
+
 function MapView() {
   const ctaRef = useRef(null);
   const arrowRef = useRef(null);
@@ -385,6 +397,51 @@ function MapView() {
   // mouseleave never fires if the layer is torn out from under the cursor, so
   // drop the focus whenever the route or the toggle changes
   useEffect(() => setFocusItem(null), [uiRoute, showDistances]);
+
+  // the route currently playing its story, or null
+  const [cinematic, setCinematic] = useState(null);
+
+  // the panel unmounts a beat later than the class comes off, so the glow and
+  // the border have something to transition back from
+  const [shownCinematic, cinematicExiting] = useExitTransition(
+    cinematic,
+    CINEMATIC_EXIT_MS,
+  );
+
+  const exitCinematic = useCallback(() => {
+    setCinematic(null);
+    setFocusItem(null);
+  }, []);
+
+  // each beat focuses the pin it is describing, reusing the hover mechanism
+  const handleCinematicBeat = useCallback((siteIndex) => {
+    setFocusItem(siteIndex == null ? null : { type: "site", index: siteIndex });
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key.toLowerCase() !== "x") return;
+      if (cinematic) {
+        exitCinematic();
+      } else if (focusedRoute && STORIES[focusedRoute]) {
+        setShowDistances(false);
+        setOverlay(null);
+        setCinematic(focusedRoute);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [cinematic, focusedRoute, exitCinematic]);
+
+  useEffect(() => {
+    if (!cinematic) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") exitCinematic();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [cinematic, exitCinematic]);
 
   // keeps the distance layer mounted long enough to fade back out when the
   // toggle is switched off, rather than blinking away
@@ -746,6 +803,7 @@ function MapView() {
   };
 
   const focusedRouteData = ROUTES.find((r) => r.label === uiRoute);
+  const cinematicRoute = ROUTES.find((r) => r.label === shownCinematic);
 
   useEffect(() => {
     if (!focusedRoute && !pendingRoute) return undefined;
@@ -809,12 +867,28 @@ function MapView() {
     <div
       className={`map-view${uiRoute ? " is-route-focused" : ""}${
         uiExiting ? " is-focus-exiting" : ""
+      }${cinematic ? " is-cinematic" : ""}${
+        cinematicExiting ? " is-cinematic-exiting" : ""
       }`}
+      style={
+        cinematicRoute
+          ? {
+              "--cinematic-glow": cinematicRoute.glow,
+              "--route-accent": cinematicRoute.color,
+            }
+          : undefined
+      }
     >
       <div
         ref={pathsRef}
         className={`map-paths${activeRoute ? " is-hovering" : ""}`}
-        style={{ transform: focusTransform }}
+        style={{
+          // the story crawls through the upper half, so the route drops down
+          // out of its way while the tour is running
+          transform: cinematic
+            ? `translateY(17%) ${focusTransform}`
+            : focusTransform,
+        }}
         onMouseMove={handleMapMouseMove}
         onMouseLeave={handleMapMouseLeave}
         onMouseDown={handleMapMouseDown}
@@ -968,6 +1042,16 @@ function MapView() {
           </div>
 
         </>
+      )}
+
+      {cinematicRoute && (
+        <CinematicMode
+          story={STORIES[shownCinematic]}
+          route={cinematicRoute}
+          isExiting={cinematicExiting}
+          onBeat={handleCinematicBeat}
+          onExit={exitCinematic}
+        />
       )}
 
       {shownOverlay && (
