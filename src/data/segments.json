@@ -1,154 +1,235 @@
 {
   "taxila-museum--dharmarajika": {
-    "distanceKm": 3,
-    "distanceVia": "Via Taxila Cantt Rd",
-    "estimatedVia": "via Main Route",
+    "distanceKm": 6,
+    "distanceVia": "Via Thatta Khalil Road",
+    "estimatedVia": "via Khanpur Road, N-125",
     "travel": [
-      { "mode": "car", "minutes": 9 },
-      { "mode": "bike", "minutes": 14 },
-      { "mode": "walk", "minutes": 38 }
+      {
+        "mode": "car",
+        "minutes": 6
+      },
+      {
+        "mode": "bike",
+        "minutes": 21
+      },
+      {
+        "mode": "walk",
+        "minutes": 80
+      }
     ]
   },
   "dharmarajika--julian": {
-    "distanceKm": 6,
-    "distanceVia": "Via Khanpur Rd",
-    "estimatedVia": "via Main Route",
+    "distanceKm": 13,
+    "distanceVia": "Via Khanpur Road, N-125",
+    "estimatedVia": "via Thatta Khalil Road",
     "travel": [
-      { "mode": "car", "minutes": 14 },
-      { "mode": "bike", "minutes": 22 },
-      { "mode": "walk", "minutes": 74 }
+      {
+        "mode": "car",
+        "minutes": 12
+      },
+      {
+        "mode": "bike",
+        "minutes": 46
+      }
     ]
   },
   "julian--bhamala-stupa": {
-    "distanceKm": 18,
-    "distanceVia": "Via Khanpur Dam Rd",
-    "estimatedVia": "via Main Route",
+    "distanceKm": 16,
+    "distanceVia": "Via Taxila Road, N-125",
+    "estimatedVia": "via Jaulian Stupa Road",
     "travel": [
-      { "mode": "car", "minutes": 32 },
-      { "mode": "bike", "minutes": 55 },
-      { "mode": "walk", "minutes": 214 }
+      {
+        "mode": "car",
+        "minutes": 24
+      },
+      {
+        "mode": "bike",
+        "minutes": 53
+      }
     ]
   },
   "bhamala-stupa--gurudwara-sri-panja-sahib": {
-    "distanceKm": 24,
-    "distanceVia": "Via Hasan Abdal Rd",
-    "estimatedVia": "via Main Route",
+    "distanceKm": 42,
+    "distanceVia": "Via N-5",
+    "estimatedVia": "via Khanpur Road, N-125",
     "travel": [
-      { "mode": "car", "minutes": 41 },
-      { "mode": "bike", "minutes": 68 },
-      { "mode": "walk", "minutes": 286 }
+      {
+        "mode": "car",
+        "minutes": 46
+      },
+      {
+        "mode": "bike",
+        "minutes": 115
+      }
     ]
   },
-
   "hund-museum--aziz-dheri": {
-    "distanceKm": 21,
-    "distanceVia": "Via Swabi Rd",
-    "estimatedVia": "via Main Route",
+    "distanceKm": 34,
+    "distanceVia": "Via Swabi - Jehangira Road, S-6",
+    "estimatedVia": "via Swabi - Mardan Highway, S-1",
     "travel": [
-      { "mode": "car", "minutes": 34 },
-      { "mode": "bike", "minutes": 58 },
-      { "mode": "walk", "minutes": 250 }
+      {
+        "mode": "car",
+        "minutes": 40
+      },
+      {
+        "mode": "bike",
+        "minutes": 137
+      }
     ]
   },
   "aziz-dheri--peshawar-museum": {
-    "distanceKm": 62,
-    "distanceVia": "Via M-1 Motorway",
-    "estimatedVia": "via Motorway",
+    "distanceKm": 113,
+    "distanceVia": "Via Swabi - Mardan Highway, S-1",
+    "estimatedVia": "via Shawa Road",
     "travel": [
-      { "mode": "car", "minutes": 66 },
-      { "mode": "bike", "minutes": 112 },
-      { "mode": "walk", "minutes": 740 }
+      {
+        "mode": "car",
+        "minutes": 80
+      },
+      {
+        "mode": "bike",
+        "minutes": 348
+      }
     ]
   },
   "peshawar-museum--gor-ghatri": {
     "distanceKm": 3,
-    "distanceVia": "Via Grand Trunk Rd",
-    "estimatedVia": "via City Route",
+    "distanceVia": "Via North City Road",
+    "estimatedVia": "via Khyber Bazaar Road",
     "travel": [
-      { "mode": "car", "minutes": 11 },
-      { "mode": "bike", "minutes": 15 },
-      { "mode": "walk", "minutes": 36 }
+      {
+        "mode": "car",
+        "minutes": 6
+      },
+      {
+        "mode": "bike",
+        "minutes": 10
+      },
+      {
+        "mode": "walk",
+        "minutes": 30
+      }
     ]
   },
   "gor-ghatri--khyber-pass": {
-    "distanceKm": 18,
-    "distanceVia": "Via Jamrud Rd",
-    "estimatedVia": "via Main Route",
+    "distanceKm": 32,
+    "distanceVia": "Via N-5",
+    "estimatedVia": "via Chowk Yadgar Road",
     "travel": [
-      { "mode": "car", "minutes": 35 },
-      { "mode": "bike", "minutes": 54 },
-      { "mode": "walk", "minutes": 215 }
+      {
+        "mode": "car",
+        "minutes": 43
+      },
+      {
+        "mode": "bike",
+        "minutes": 129
+      }
     ]
   },
   "khyber-pass--shapola-stupa": {
-    "distanceKm": 25,
-    "distanceVia": "Via Khyber Pass Rd",
-    "estimatedVia": "via Khyber Pass",
-    "travel": [
-      { "mode": "car", "minutes": 46 },
-      { "mode": "bike", "minutes": 74 },
-      { "mode": "walk", "minutes": 300 }
-    ]
-  },
-
-  "takht-i-bahi--ashoka-rock-edicts": {
-    "distanceKm": 16,
-    "distanceVia": "Via Mardan Rd",
+    "distanceKm": 12,
+    "distanceVia": "Via N-5",
     "estimatedVia": "via Main Route",
     "travel": [
-      { "mode": "car", "minutes": 28 },
-      { "mode": "bike", "minutes": 46 },
-      { "mode": "walk", "minutes": 190 }
+      {
+        "mode": "car",
+        "minutes": 15
+      },
+      {
+        "mode": "bike",
+        "minutes": 39
+      }
+    ]
+  },
+  "takht-i-bahi--ashoka-rock-edicts": {
+    "distanceKm": 30,
+    "distanceVia": "Via S-1B",
+    "estimatedVia": "via N-45",
+    "travel": [
+      {
+        "mode": "car",
+        "minutes": 29
+      },
+      {
+        "mode": "bike",
+        "minutes": 127
+      }
     ]
   },
   "ashoka-rock-edicts--jamal-ghari": {
-    "distanceKm": 12,
-    "distanceVia": "Via Mardan Ring Rd",
-    "estimatedVia": "via Main Route",
+    "distanceKm": 23,
+    "distanceVia": "Via Mardan - Swabi Road, S-1",
+    "estimatedVia": "via S-1B",
     "travel": [
-      { "mode": "car", "minutes": 23 },
-      { "mode": "bike", "minutes": 37 },
-      { "mode": "walk", "minutes": 145 }
+      {
+        "mode": "car",
+        "minutes": 26
+      },
+      {
+        "mode": "bike",
+        "minutes": 73
+      }
     ]
   },
   "jamal-ghari--baziri-barikot": {
-    "distanceKm": 68,
-    "distanceVia": "Via Swat Expressway",
-    "estimatedVia": "via Expressway",
+    "distanceKm": 67,
+    "distanceVia": "Via Katlang Road, S-10B",
+    "estimatedVia": "via Nowshera-Chitral Road, N-45",
     "travel": [
-      { "mode": "car", "minutes": 78 },
-      { "mode": "bike", "minutes": 126 },
-      { "mode": "walk", "minutes": 810 }
+      {
+        "mode": "car",
+        "minutes": 57
+      },
+      {
+        "mode": "bike",
+        "minutes": 244
+      }
     ]
   },
   "baziri-barikot--ghaznavi-mosque": {
-    "distanceKm": 9,
-    "distanceVia": "Via Udegram Rd",
-    "estimatedVia": "via Main Route",
+    "distanceKm": 13,
+    "distanceVia": "Via Mingora Road, N-95",
+    "estimatedVia": "via Saidu Sharif Hospital to Odigram Road Proposed",
     "travel": [
-      { "mode": "car", "minutes": 18 },
-      { "mode": "bike", "minutes": 29 },
-      { "mode": "walk", "minutes": 108 }
+      {
+        "mode": "car",
+        "minutes": 19
+      },
+      {
+        "mode": "bike",
+        "minutes": 51
+      }
     ]
   },
   "ghaznavi-mosque--saidu-stupa": {
-    "distanceKm": 11,
-    "distanceVia": "Via Saidu Sharif Rd",
-    "estimatedVia": "via Main Route",
+    "distanceKm": 10,
+    "distanceVia": "Via Mingora Road, N-95",
+    "estimatedVia": "via Saidu Sharif Hospital to Odigram Road Proposed",
     "travel": [
-      { "mode": "car", "minutes": 21 },
-      { "mode": "bike", "minutes": 34 },
-      { "mode": "walk", "minutes": 132 }
+      {
+        "mode": "car",
+        "minutes": 20
+      },
+      {
+        "mode": "bike",
+        "minutes": 39
+      }
     ]
   },
   "saidu-stupa--amluk-dara-stupa": {
-    "distanceKm": 14,
-    "distanceVia": "Via Nawagai Rd",
-    "estimatedVia": "via Main Route",
+    "distanceKm": 28,
+    "distanceVia": "Via Mingora Road, N-95",
+    "estimatedVia": "via Karakar Road - Pirbaba Road",
     "travel": [
-      { "mode": "car", "minutes": 26 },
-      { "mode": "bike", "minutes": 42 },
-      { "mode": "walk", "minutes": 168 }
+      {
+        "mode": "car",
+        "minutes": 36
+      },
+      {
+        "mode": "bike",
+        "minutes": 110
+      }
     ]
   }
 }

@@ -1,145 +1,251 @@
 {
   "taxila-museum": {
+    "coords": [
+      33.7459,
+      72.8186
+    ],
     "approximateAge": "2700 BCE",
-    "images": ["/sites/taxila-museum.jpg"],
+    "images": [
+      "/sites/taxila-museum.jpg"
+    ],
     "description": [
       "Taxila Museum is located at Taxila, Punjab Pakistan. The museum is home to a significant and comprehensive collection of Gandharan art dating from 2nd century BC to 7th century AD.",
       "Most objects in the collection were excavated from the ruins of ancient Taxila."
     ]
   },
   "dharmarajika": {
+    "coords": [
+      33.73,
+      72.78
+    ],
     "approximateAge": "3rd century BCE",
-    "images": ["/sites/dharmarajika.jpg"],
+    "images": [
+      "/sites/dharmarajika.jpg"
+    ],
     "description": [
       "Also known as the Great Stupa of Taxila, the Dharmarajika complex was raised over bone relics of the Buddha and grew into one of the largest monastic settlements in Gandhara.",
       "Tradition credits its earliest phase to the Mauryan emperor Ashoka in the 3rd century BCE, with the structure visible today largely dating from the 2nd century CE. It forms part of the Taxila UNESCO World Heritage Site."
     ]
   },
   "julian": {
+    "coords": [
+      33.76552,
+      72.87498
+    ],
     "approximateAge": "2nd century CE",
-    "images": ["/sites/julian.jpg"],
+    "images": [
+      "/sites/julian.jpg"
+    ],
     "description": [
       "Jaulian is a ruined Buddhist monastery set on a hilltop east of Taxila, dating from the 2nd century CE.",
       "Its remains include a main stupa court ringed by votive stupas, an assembly hall and rows of monastic cells, much of it still carrying its original stucco decoration."
     ]
   },
   "bhamala-stupa": {
+    "coords": [
+      33.833,
+      72.967
+    ],
     "approximateAge": "2nd century CE",
-    "images": ["/sites/bhamala-stupa.jpg"],
+    "images": [
+      "/sites/bhamala-stupa.jpg"
+    ],
     "description": [
       "Bhamala Stupa stands on the banks of the Haro River near Khanpur Dam, consecrated in the 2nd century CE with the wider complex in use into the 5th.",
       "Unusually for the region, the main stupa is cruciform, with staircases on all four sides and some nineteen smaller votive stupas around the courtyard. Excavations here uncovered a 1,700-year-old statue of the Buddha in death, among the oldest known depictions of the subject."
     ]
   },
   "gurudwara-sri-panja-sahib": {
+    "coords": [
+      33.82083,
+      72.68972
+    ],
     "approximateAge": "1521 CE",
-    "images": ["/sites/gurudwara-sri-panja-sahib.jpg"],
+    "images": [
+      "/sites/gurudwara-sri-panja-sahib.jpg"
+    ],
     "description": [
       "One of the holiest sites in Sikhism, Gurdwara Sri Panja Sahib at Hasan Abdal marks the spot where Guru Nanak stayed during his visit in 1521.",
       "It takes its name from the boulder held to bear the imprint of the Guru's hand. The gurdwara was later built in Mughal style under Maharaja Ranjit Singh and remains a major site of pilgrimage."
     ]
   },
-
   "hund-museum": {
+    "coords": [
+      34.0141,
+      72.4329
+    ],
     "approximateAge": "Late Kushan to Mughal era",
-    "images": ["/sites/hund-museum.jpg"],
+    "images": [
+      "/sites/hund-museum.jpg"
+    ],
     "description": [
       "Hund Museum sits beside the Indus in Swabi district, on the site of the ancient river crossing once known as Udabhandapura.",
       "Its collection is drawn from excavations at the settlement, spanning material from the late Kushan period through to the Mughal era."
     ]
   },
   "aziz-dheri": {
+    "coords": [
+      34.24546,
+      72.3934
+    ],
     "approximateAge": null,
-    "images": ["/sites/aziz-dheri.jpg"],
+    "images": [
+      "/sites/aziz-dheri.jpg"
+    ],
     "description": [
       "Aziz Dheri is the ruin of an ancient settlement in Swabi district, layered with Buddhist stupas, a monastery and residential quarters.",
       "Excavation in 2013 revealed four stupas at the site, one of which was reported to be the largest recorded on the subcontinent."
     ]
   },
   "peshawar-museum": {
+    "coords": [
+      34.0077,
+      71.5583
+    ],
     "approximateAge": "Established 1907",
-    "images": ["/sites/peshawar-museum.jpg"],
+    "images": [
+      "/sites/peshawar-museum.jpg"
+    ],
     "description": [
       "Founded in 1907 as Victoria Hall, the Peshawar Museum holds one of the world's most important collections of Gandharan sculpture.",
       "Its holdings were gathered from excavations at Sahri Bahlol, Shah-ji-ki-Dheri, Takht-i-Bahi and Jamal Garhi, among other sites across the region."
     ]
   },
   "gor-ghatri": {
+    "coords": [
+      34.0078,
+      71.5795
+    ],
     "approximateAge": "2nd century BCE",
-    "images": ["/sites/gor-ghatri.jpg"],
+    "images": [
+      "/sites/gor-ghatri.jpg"
+    ],
     "description": [
       "Gor Khatri crowns the highest point of Peshawar's walled city. Excavation here has cut through twenty-seven occupation layers reaching back to the 2nd century BCE, evidence for Peshawar as one of the oldest continuously inhabited cities in South Asia.",
       "The standing caravanserai was built in 1640 by Jahanara Begum, daughter of Shah Jahan. The nearby Sethi House, a 19th-century merchant residence, is now open as a museum."
     ]
   },
   "khyber-pass": {
+    "coords": [
+      34.01735,
+      71.279887
+    ],
     "approximateAge": "1836 CE",
-    "images": ["/sites/khyber-pass.jpg"],
+    "images": [
+      "/sites/khyber-pass.jpg"
+    ],
     "description": [
       "The Khyber Pass has carried armies, caravans and pilgrims between the Iranian plateau and the Indian subcontinent for millennia.",
       "Jamrud Fort guards its eastern mouth, built by the Sikhs in 1836 to hold the approach to the pass."
     ]
   },
   "shapola-stupa": {
+    "coords": [
+      34.0747,
+      71.2083
+    ],
     "approximateAge": "2nd century CE",
-    "images": ["/sites/shapola-stupa.jpg"],
+    "images": [
+      "/sites/shapola-stupa.jpg"
+    ],
     "description": [
       "Sphola Stupa rises from a ravine in the Khyber Pass between Ali Masjid and Landi Kotal, its dome set on a three-tiered stone base.",
       "Generally dated to the 2nd century CE, it is the most complete Buddhist monument surviving in the pass. Gandharan sculptures excavated here are now held in the Peshawar Museum."
     ]
   },
-
   "takht-i-bahi": {
+    "coords": [
+      34.28611,
+      71.94667
+    ],
     "approximateAge": "1st century CE",
-    "images": ["/sites/takht-i-bahi.jpg"],
+    "images": [
+      "/sites/takht-i-bahi.jpg"
+    ],
     "description": [
       "Founded in the 1st century CE and occupied until the 7th, Takht-i-Bahi is an Indo-Parthian Buddhist monastery set on a ridge above the Mardan plain.",
       "Its hilltop position spared it the flooding and reuse that destroyed lower sites, leaving it exceptionally well preserved. It was inscribed as a UNESCO World Heritage Site in 1980."
     ]
   },
   "ashoka-rock-edicts": {
+    "coords": [
+      34.235556,
+      72.16
+    ],
     "approximateAge": "3rd century BCE",
-    "images": ["/sites/ashoka-rock-edicts.jpg"],
+    "images": [
+      "/sites/ashoka-rock-edicts.jpg"
+    ],
     "description": [
       "At Shahbaz Garhi, east of Mardan, the Mauryan emperor Ashoka had his fourteen Major Rock Edicts carved into two natural boulders during the 3rd century BCE.",
       "Cut in the local Kharoshthi script, this is one of the two most complete surviving sets of the edicts anywhere."
     ]
   },
   "jamal-ghari": {
+    "coords": [
+      34.317,
+      72.067
+    ],
     "approximateAge": "2nd century CE",
-    "images": ["/sites/jamal-ghari.jpg"],
+    "images": [
+      "/sites/jamal-ghari.jpg"
+    ],
     "description": [
       "Jamal Garhi is a hilltop Buddhist monastery in Mardan district, occupied from roughly the 2nd to the 5th century CE.",
       "Excavated in the 19th century, it yielded a large body of Gandharan relief sculpture, much of which is now in the Peshawar Museum."
     ]
   },
   "baziri-barikot": {
+    "coords": [
+      34.67778,
+      72.22333
+    ],
     "approximateAge": "4th century BCE",
-    "images": ["/sites/baziri-barikot.jpg"],
+    "images": [
+      "/sites/baziri-barikot.jpg"
+    ],
     "description": [
       "Barikot is identified with ancient Bazira, the fortified town besieged by Alexander the Great during his campaign in Swat.",
       "The Italian Archaeological Mission has excavated the site since 1984, exposing a long urban sequence with defensive walls, houses and Buddhist sanctuaries."
     ]
   },
   "ghaznavi-mosque": {
+    "coords": [
+      34.7432,
+      72.3142
+    ],
     "approximateAge": "1048 CE",
-    "images": ["/sites/ghaznavi-mosque.jpg"],
+    "images": [
+      "/sites/ghaznavi-mosque.jpg"
+    ],
     "description": [
       "Uncovered on Mount Raja Gira at Udegram by the Italian Archaeological Mission, this is among the oldest known mosques in northern Pakistan.",
       "Its foundation inscription records its building in 1048–49 CE on the order of Amir Nustagin, a general under Mahmud of Ghazni. A Buddhist sanctuary and a graveyard were found alongside it."
     ]
   },
   "saidu-stupa": {
+    "coords": [
+      34.757091,
+      72.362172
+    ],
     "approximateAge": "1st century CE",
-    "images": ["/sites/saidu-stupa.jpg"],
+    "images": [
+      "/sites/saidu-stupa.jpg"
+    ],
     "description": [
       "The Great Stupa at Saidu Sharif was raised in the 1st century CE and remained in use, through successive rebuildings, into the 4th and 5th.",
       "Its sacred area steps across two terraces, the main stupa ringed by smaller monuments, viharas and lion-topped columns. The nearby Swat Museum displays finds from the valley's Buddhist sites."
     ]
   },
   "amluk-dara-stupa": {
+    "coords": [
+      34.64745,
+      72.28988
+    ],
     "approximateAge": "3rd century CE",
-    "images": ["/sites/amluk-dara-stupa.jpg"],
+    "images": [
+      "/sites/amluk-dara-stupa.jpg"
+    ],
     "description": [
       "Amluk Dara stands beneath Mount Ilam in Swat, one of the best preserved great stupas in the valley, built in the 3rd century CE.",
       "Sir Aurel Stein recorded it in 1926 and Domenico Faccenna studied it in the 1960s and 70s. The monument was rebuilt repeatedly between the 5th and 8th centuries."
